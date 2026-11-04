@@ -7,7 +7,8 @@
   "environment": "*",
   "entrypoints": {
     "fabric-client-gametest": [
-      "io.github.ammaarbakshi.herobrine.gametest.CommandClientGameTest"
+      "io.github.ammaarbakshi.herobrine.gametest.CommandClientGameTest",
+      "io.github.ammaarbakshi.herobrine.gametest.EntityClientGameTest"
     ]
   },
   "depends": {

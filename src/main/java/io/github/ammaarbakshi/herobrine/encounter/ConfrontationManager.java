@@ -172,7 +172,12 @@ public final class ConfrontationManager {
 	// --- Queries ------------------------------------------------------------------------------
 
 	public static boolean isFighting(ServerPlayer player) {
-		return FIGHTS.containsKey(player.getUUID());
+		return isFighting(player.getUUID());
+	}
+
+	/** Also works once the player has left. */
+	public static boolean isFighting(UUID player) {
+		return FIGHTS.containsKey(player);
 	}
 
 	/** Lines he has said in the current fight (0 when there is none). */

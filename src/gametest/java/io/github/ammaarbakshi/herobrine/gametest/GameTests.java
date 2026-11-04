@@ -74,9 +74,15 @@ final class GameTests {
 		return Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, facing.dot(to)))));
 	}
 
-	/** Screenshot with the chat cleared so command feedback doesn't cover the scene. */
+	/**
+	 * Screenshot with the chat and toasts cleared so command feedback and vanilla's
+	 * multiplayer notices don't cover the scene.
+	 */
 	static void screenshot(ClientGameTestContext context, String name) {
-		context.runOnClient(client -> client.gui.hud.getChat().clearMessages(false));
+		context.runOnClient(client -> {
+			client.gui.hud.getChat().clearMessages(false);
+			client.gui.toastManager().clear();
+		});
 		context.waitTick();
 		context.takeScreenshot(name);
 	}

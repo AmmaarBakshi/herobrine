@@ -38,6 +38,11 @@ public final class DebugOverlay {
 	private DebugOverlay() {
 	}
 
+	/** The last update from the server, or null if none since joining. */
+	public static @Nullable ProfileView latest() {
+		return view;
+	}
+
 	public static void init() {
 		ClientPlayNetworking.registerGlobalReceiver(DebugProfilePayload.TYPE, (payload, context) -> {
 			view = payload.view();

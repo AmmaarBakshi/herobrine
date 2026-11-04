@@ -6,9 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -47,6 +49,7 @@ import io.github.ammaarbakshi.herobrine.haunt.PrivateSounds;
 import io.github.ammaarbakshi.herobrine.mirror.CounterPlan;
 import io.github.ammaarbakshi.herobrine.mirror.Habit;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileAnalyzer;
+import io.github.ammaarbakshi.herobrine.mirror.Taunts;
 import io.github.ammaarbakshi.herobrine.net.ConfrontationCuePayload;
 import io.github.ammaarbakshi.herobrine.net.ModNetworking;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
@@ -107,6 +110,9 @@ public final class ConfrontationManager {
 		boolean arrived;
 		int ticks;
 		int fightTicks;
+		int nextTaunt = Taunts.FIRST_DELAY;
+		String lastTaunt = "";
+		int taunts;
 
 		Fight(UUID playerId, Trigger trigger, CounterPlan plan) {
 			this.playerId = playerId;
@@ -166,6 +172,17 @@ public final class ConfrontationManager {
 
 	public static boolean isFighting(ServerPlayer player) {
 		return FIGHTS.containsKey(player.getUUID());
+	}
+
+	/** Lines he has said in the current fight (0 when there is none). */
+	public static int tauntsSent(ServerPlayer player) {
+		Fight fight = FIGHTS.get(player.getUUID());
+		return fight == null ? 0 : fight.taunts;
+	}
+
+	/** The counters he would bring if a fight started now. */
+	public static CounterPlan nextPlan(ServerPlayer player) {
+		return planFor(player, HerobrineConfig.get());
 	}
 
 	/** The player's live boss, if a fight is on and he has arrived. */
@@ -306,7 +323,13 @@ public final class ConfrontationManager {
 			}
 			return;
 		}
-		if (boss.isDeadOrDying() || fight.ticks % FLEE_CHECK_INTERVAL != 0 || !player.isAlive()) {
+		if (boss.isDeadOrDying() || !player.isAlive()) {
+			return;
+		}
+		if (fight.fightTicks >= fight.nextTaunt) {
+			taunt(player, fight);
+		}
+		if (fight.ticks % FLEE_CHECK_INTERVAL != 0) {
 			return;
 		}
 		if (boss.level() != player.level()) {
@@ -348,6 +371,19 @@ public final class ConfrontationManager {
 			fight.boss = boss;
 			fight.arrived = true;
 		}
+	}
+
+	/** One line on the action bar, built from what he knows about them. */
+	private static void taunt(ServerPlayer player, Fight fight) {
+		RandomGenerator random = player.getRandom()::nextLong;
+		Taunts.Taunt taunt = Taunts.pick(ModAttachments.profile(player), HerobrineConfig.get().minTraitSamples, fight.lastTaunt, random);
+		Component line = taunt.argument().isEmpty()
+				? Component.translatable(taunt.translationKey())
+				: Component.translatable(taunt.translationKey(), taunt.argument());
+		player.sendOverlayMessage(line.copy().withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC));
+		fight.lastTaunt = taunt.id();
+		fight.taunts++;
+		fight.nextTaunt = fight.fightTicks + Taunts.nextInterval(random);
 	}
 
 	/** Swaps in a fresh boss behind the player, carrying over his health and heal budget. */

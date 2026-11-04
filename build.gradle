@@ -34,6 +34,14 @@ loom {
 		client {
 			programArgs '--username', 'Dev'
 		}
+		// ./gradlew runClientGameTest -Pgametest=Sighting,Entity runs only matching tests.
+		if (project.hasProperty('gametest')) {
+			configureEach {
+				if (name == 'clientGameTest') {
+					vmArg "-Dherobrine.gametest=${project.property('gametest')}"
+				}
+			}
+		}
 		// Separate directory so a dedicated server and clients can run side by side.
 		server {
 			runDir 'run/server'

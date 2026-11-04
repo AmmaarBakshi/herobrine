@@ -16,6 +16,9 @@ import io.github.ammaarbakshi.herobrine.registry.ModItems;
 public final class EntityClientGameTest implements FabricClientGameTest {
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		if (!GameTests.selected(this)) {
+			return;
+		}
 		try (TestSingleplayerContext world = GameTests.createWorld(context)) {
 			GameTests.asPlayer(world, "time set noon");
 			GameTests.asPlayer(world, "tp @s ~ ~ ~ 0 55");

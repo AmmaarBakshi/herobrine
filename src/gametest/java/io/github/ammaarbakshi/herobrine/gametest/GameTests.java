@@ -17,6 +17,24 @@ final class GameTests {
 	private GameTests() {
 	}
 
+	/**
+	 * True unless {@code -Dherobrine.gametest=A,B} is set and names none of the test's class
+	 * name fragments (e.g. "Sighting" selects SightingClientGameTest).
+	 */
+	static boolean selected(Object test) {
+		String filter = System.getProperty("herobrine.gametest", "");
+		if (filter.isBlank()) {
+			return true;
+		}
+		String name = test.getClass().getSimpleName();
+		for (String part : filter.split(",")) {
+			if (!part.isBlank() && name.contains(part.trim())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	static TestSingleplayerContext createWorld(ClientGameTestContext context) {
 		TestSingleplayerContext world = context.worldBuilder()
 				.adjustSettings(settings -> settings.setAllowCommands(true))

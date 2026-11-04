@@ -8,6 +8,9 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 public final class CommandClientGameTest implements FabricClientGameTest {
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		if (!GameTests.selected(this)) {
+			return;
+		}
 		try (TestSingleplayerContext world = GameTests.createWorld(context)) {
 			world.getServer().runOnServer(server -> GameTests.check(
 					server.getCommands().getDispatcher().getRoot().getChild("herobrine") != null,

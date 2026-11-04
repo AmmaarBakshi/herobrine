@@ -35,9 +35,27 @@ All commands need op level 2.
 | `/herobrine sighting <player> [stalk\|jumpscare]` | Force a sighting |
 | `/herobrine sign <event> [player]` | Force a haunt event (tab-completes the ids below) |
 | `/herobrine undo [n]` | Revert the last `n` world-editing events (default 1) |
+| `/herobrine profile <player>` | Every learned trait with its sample count (grey = not known yet) |
+| `/herobrine profile <player> reset` | Wipe the profile |
+| `/herobrine profile <player> preset <name>` | Load a test profile: `bow_kiter`, `sword_spammer`, `shield_turtle`, `pillar_coward` |
+| `/herobrine perf [reset]` | Measured recorder cost per player per tick |
 | `/herobrine reload` | Reload `config/herobrine.json` |
 
-Profile and confrontation commands arrive with their milestones.
+Confrontation commands arrive with their milestone.
+
+### What he learns
+
+While you fight hostile mobs (you hit or were hit in the last 5 s, or one within 8 blocks is
+after you), the server records your habits as moving averages: weapon choice, attack timing,
+crits, sprint-hits, how much you shoot, strafe direction and intensity, the distance you keep,
+jumping, shield use and reaction time, when and with what you heal, when you back off, and
+whether you pillar, pearl away or water-clutch. A habit counts once it has `minTraitSamples`
+samples. The profile is saved with the player and survives relogs, deaths and restarts.
+
+Set `debugOverlay` to `true` to see the values live in a corner of the screen.
+
+Measured cost: about **15 µs per player per tick while fighting** (budget: 100 µs), and less
+out of combat. Check your own server with `/herobrine perf`.
 
 ### Haunt events
 
@@ -90,7 +108,7 @@ cd herobrine
 ./gradlew runClient        # dev client
 ./gradlew runServer        # dev dedicated server (run/server)
 ./gradlew runClientGameTest  # boots the real game and runs in-game tests
-./gradlew runClientGameTest -Pgametest=Haunt  # just one (Command, Entity, Sighting, Haunt)
+./gradlew runClientGameTest -Pgametest=Haunt  # just one (Command, Entity, Sighting, Haunt, Recorder)
 ```
 
 You need a JDK 25. If none is installed, Gradle downloads one automatically
@@ -111,7 +129,7 @@ You need a JDK 25. If none is installed, Gradle downloads one automatically
 - [x] **M2** Herobrine entity, original skin, glowing eyes, spawn egg
 - [x] **M3** Sightings and look detection
 - [x] **M4** Haunt director, sign events, world-edit safety and undo
-- [ ] **M5** Combat behaviour recorder, player profile, persistence
+- [x] **M5** Combat behaviour recorder, player profile, persistence
 - [ ] **M6** Mirror AI driven by the profile
 - [ ] **M7** Confrontation, boss fight, Mirror Shard, advancement
 - [ ] **M8** Adaptive counters and taunts

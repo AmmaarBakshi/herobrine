@@ -42,6 +42,13 @@ loom {
 				}
 			}
 		}
+		// ./gradlew runClient -Pjfr=build/profile.jfr records a Java Flight Recorder profile
+		// (open it in JDK Mission Control, or `jfr print`) of any run.
+		if (project.hasProperty('jfr')) {
+			configureEach {
+				vmArg "-XX:StartFlightRecording=settings=profile,filename=${file(project.property('jfr'))}"
+			}
+		}
 		// Separate directory so a dedicated server and clients can run side by side.
 		server {
 			runDir 'run/server'

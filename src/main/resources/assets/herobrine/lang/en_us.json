@@ -1,0 +1,12 @@
+{
+  "herobrine.phase.signs": "Signs",
+  "herobrine.phase.sightings": "Sightings",
+  "herobrine.phase.stalking": "Stalking",
+  "herobrine.phase.confrontation": "Confrontation",
+
+  "herobrine.command.status.header": "Herobrine is watching %s",
+  "herobrine.command.status.haunt": "  Haunt level: %s/%s (%s)",
+  "herobrine.command.status.confidence": "  Profile confidence: %s%%",
+  "herobrine.command.status.encounters": "  Encounters: %s",
+  "herobrine.command.reload.success": "Reloaded config/herobrine.json"
+}

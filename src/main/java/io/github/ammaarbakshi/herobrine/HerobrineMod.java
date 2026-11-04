@@ -6,6 +6,11 @@ import org.slf4j.LoggerFactory;
 import net.minecraft.resources.Identifier;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+
+import io.github.ammaarbakshi.herobrine.command.HerobrineCommand;
+import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.registry.ModRegistries;
 
 /**
  * Common (both-sides) entrypoint. Everything here must be safe on a dedicated server,
@@ -21,6 +26,10 @@ public final class HerobrineMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		HerobrineConfig.load();
+		ModRegistries.init();
+		CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
+				HerobrineCommand.register(dispatcher));
 		LOGGER.info("He is watching.");
 	}
 }

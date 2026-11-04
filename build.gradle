@@ -56,7 +56,7 @@ java {
 tasks.withType(JavaCompile).configureEach {
 	options.release = 25
 	options.encoding = 'UTF-8'
-	options.compilerArgs.addAll(['-Xlint:all,-processing,-serial', '-Xmaxwarns', '500'])
+	options.compilerArgs.addAll(['-Xlint:all,-processing,-serial,-classfile', '-Xmaxwarns', '500'])
 }
 
 processResources {

@@ -96,6 +96,8 @@ public final class HerobrineEntity extends Monster {
 	public static final double DEFAULT_HEALTH = 40.0;
 	/** Roughly a walking player; goals scale it up for sprinting. */
 	public static final double BASE_SPEED = 0.3;
+	/** Vanilla survival reach, eyes to the target's hitbox. */
+	public static final double PLAYER_REACH = 3.0;
 
 	private Mode mode = Mode.IDLE;
 	private @Nullable UUID watchedPlayerId;
@@ -315,6 +317,15 @@ public final class HerobrineEntity extends Monster {
 				mirror.disableShield(level.getGameTime(), Math.round(seconds * 20.0F));
 			}
 		}
+	}
+
+	/**
+	 * A player's reach (eyes to hitbox), not a mob's hug-range: he hits from where they would.
+	 * The vanilla mob box would make him walk into them before every swing.
+	 */
+	@Override
+	public boolean isWithinMeleeAttackRange(LivingEntity target) {
+		return target.getBoundingBox().distanceToSqr(getEyePosition()) < PLAYER_REACH * PLAYER_REACH;
 	}
 
 	@Override

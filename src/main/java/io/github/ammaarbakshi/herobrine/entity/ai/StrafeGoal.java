@@ -15,8 +15,8 @@ import io.github.ammaarbakshi.herobrine.mirror.TraitId;
  * (their side, their intensity, their jumping). Paths in when far or out of sight.
  */
 public final class StrafeGoal extends MirrorGoal {
-	/** Melee spacing never goes beyond reach, whatever their average range says. */
-	private static final double MAX_MELEE_RANGE = 2.8;
+	/** Melee spacing never goes beyond reach (3 blocks to the hitbox), whatever their average range says. */
+	private static final double MAX_MELEE_RANGE = 2.6;
 	private static final double MIN_RANGED_RANGE = 8.0;
 	private static final double STRAFE_SPEED = 0.9;
 
@@ -96,7 +96,7 @@ public final class StrafeGoal extends MirrorGoal {
 			}
 			sideTimer = 20 + herobrine.getRandom().nextInt(25);
 		}
-		float forwards = distance > desired + 0.75 ? 1.0F : distance < desired - 1.0 ? -1.0F : 0.0F;
+		float forwards = distance > desired + 0.4 ? 1.0F : distance < desired - 1.0 ? -1.0F : 0.0F;
 		float right = (float) (side * brain.value(TraitId.STRAFE_INTENSITY));
 		move().strafeAt(forwards, right, STRAFE_SPEED);
 		herobrine.lookAt(target, 30.0F, 30.0F);

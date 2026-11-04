@@ -7,6 +7,8 @@ import net.minecraft.server.MinecraftServer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
+import io.github.ammaarbakshi.herobrine.perf.Perf;
+
 /**
  * Runs small delayed actions on the server thread (a footstep every few ticks, a door that
  * closes a second after it opened). One priority queue, so an idle server pays one peek per tick.
@@ -24,7 +26,7 @@ public final class HauntScheduler {
 	}
 
 	public static void init() {
-		ServerTickEvents.END_SERVER_TICK.register(HauntScheduler::tick);
+		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, HauntScheduler::tick));
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> QUEUE.clear());
 	}
 

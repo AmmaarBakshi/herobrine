@@ -40,8 +40,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 import io.github.ammaarbakshi.herobrine.HerobrineMod;
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
-import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
 import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity.Mode;
+import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
 import io.github.ammaarbakshi.herobrine.entity.ai.MirrorBrain;
 import io.github.ammaarbakshi.herobrine.haunt.HauntLevel;
 import io.github.ammaarbakshi.herobrine.haunt.HauntState;
@@ -52,6 +52,7 @@ import io.github.ammaarbakshi.herobrine.mirror.ProfileAnalyzer;
 import io.github.ammaarbakshi.herobrine.mirror.Taunts;
 import io.github.ammaarbakshi.herobrine.net.ConfrontationCuePayload;
 import io.github.ammaarbakshi.herobrine.net.ModNetworking;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.registry.ModEntities;
 import io.github.ammaarbakshi.herobrine.registry.ModItems;
@@ -135,7 +136,7 @@ public final class ConfrontationManager {
 	}
 
 	public static void init() {
-		ServerTickEvents.END_SERVER_TICK.register(ConfrontationManager::tick);
+		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, ConfrontationManager::tick));
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if (entity instanceof ServerPlayer player) {
 				onPlayerDeath(player);

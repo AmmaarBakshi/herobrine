@@ -26,6 +26,7 @@ import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
 import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity.Mode;
 import io.github.ammaarbakshi.herobrine.haunt.HauntLevel;
 import io.github.ammaarbakshi.herobrine.haunt.PrivateSounds;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.registry.ModEntities;
 import io.github.ammaarbakshi.herobrine.registry.ModSounds;
@@ -76,7 +77,7 @@ public final class SightingController {
 	}
 
 	public static void init() {
-		ServerTickEvents.END_SERVER_TICK.register(SightingController::tick);
+		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, SightingController::tick));
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> clear());
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> end(handler.player.getUUID()));
 	}

@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager.StartResult;
 import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager.Trigger;
 import io.github.ammaarbakshi.herobrine.encounter.ShrinePattern.Part;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 
 /**
  * Watches for someone lighting a shrine. Costs nothing until a player uses flint and steel
@@ -48,7 +49,7 @@ public final class ShrineDetector {
 			}
 			return InteractionResult.PASS;
 		});
-		ServerTickEvents.END_SERVER_TICK.register(ShrineDetector::tick);
+		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, ShrineDetector::tick));
 	}
 
 	private static void tick(MinecraftServer server) {

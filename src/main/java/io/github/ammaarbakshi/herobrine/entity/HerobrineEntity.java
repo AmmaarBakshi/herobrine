@@ -48,6 +48,7 @@ import io.github.ammaarbakshi.herobrine.entity.ai.StareGoal;
 import io.github.ammaarbakshi.herobrine.entity.ai.StrafeGoal;
 import io.github.ammaarbakshi.herobrine.mirror.CounterPlan;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerProfile;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 
 /**
@@ -226,6 +227,18 @@ public final class HerobrineEntity extends Monster {
 	public void tick() {
 		super.tick();
 		ageInMode++;
+	}
+
+	@Override
+	public void aiStep() {
+		if (mode != Mode.BOSS || level().isClientSide()) {
+			super.aiStep();
+			return;
+		}
+		// Goals, navigation and movement: what one boss costs the server per tick.
+		long start = System.nanoTime();
+		super.aiStep();
+		Perf.MIRROR_AI.sample(System.nanoTime() - start);
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
 import io.github.ammaarbakshi.herobrine.haunt.events.EventContext;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvent;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.registry.ModTags;
 
@@ -56,7 +57,7 @@ public final class HauntDirector {
 	}
 
 	public static void init() {
-		ServerTickEvents.END_SERVER_TICK.register(HauntDirector::tick);
+		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, HauntDirector::tick));
 		PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
 			if (player instanceof ServerPlayer serverPlayer && state.is(ModTags.TUNNEL_CARVABLE)) {
 				PlayerTrail trail = ModAttachments.trail(serverPlayer);

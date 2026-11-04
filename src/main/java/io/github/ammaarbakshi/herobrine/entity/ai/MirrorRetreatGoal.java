@@ -147,18 +147,29 @@ public final class MirrorRetreatGoal extends MirrorGoal {
 	}
 
 	private void throwPearl() {
+		throwPearl(herobrine);
+	}
+
+	/** The throw half of a simulated ender pearl: arm swing and sound. */
+	static void throwPearl(HerobrineEntity herobrine) {
 		herobrine.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT);
 		herobrine.level().playSound(null, herobrine.getX(), herobrine.getY(), herobrine.getZ(), SoundEvents.ENDER_PEARL_THROW,
 				herobrine.getSoundSource(), 0.5F, 0.4F / (herobrine.getRandom().nextFloat() * 0.4F + 0.8F));
 	}
 
 	private void land(Vec3 at) {
+		land(herobrine, at);
+	}
+
+	/** The landing half: portal particles at both ends, teleport, no fall damage carried over. */
+	static void land(HerobrineEntity herobrine, Vec3 at) {
 		if (!(herobrine.level() instanceof ServerLevel level)) {
 			return;
 		}
 		level.sendParticles(ParticleTypes.PORTAL, herobrine.getX(), herobrine.getY(0.5), herobrine.getZ(), 24, 0.3, 0.6, 0.3, 0.4);
 		herobrine.teleportTo(at.x, at.y, at.z);
 		herobrine.resetFallDistance();
+		herobrine.getNavigation().stop();
 		level.sendParticles(ParticleTypes.PORTAL, at.x, at.y + 1.0, at.z, 32, 0.3, 0.6, 0.3, 0.4);
 		level.playSound(null, at.x, at.y, at.z, SoundEvents.PLAYER_TELEPORT, herobrine.getSoundSource(), 1.0F, 1.0F);
 	}

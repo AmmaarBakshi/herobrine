@@ -245,6 +245,7 @@ public final class PlayerBehaviorRecorder {
 		if (!player.onGround() && placed.getX() == player.getBlockX() && placed.getZ() == player.getBlockZ()
 				&& placed.getY() < player.getY() && placed.getY() >= player.getBlockY() - 2) {
 			state.pillaredThisEpisode = true;
+			state.rememberPillarBlock(placed);
 		}
 		account(start);
 		return InteractionResult.PASS;
@@ -372,6 +373,7 @@ public final class PlayerBehaviorRecorder {
 		state.inCombat = true;
 		state.episodeStart = now;
 		state.pillaredThisEpisode = false;
+		state.clearPillarBlocks();
 		state.hasPrevious = false;
 		state.backingOffSamples = 0;
 		PlayerProfile profile = ModAttachments.profile(player);

@@ -1,7 +1,11 @@
 package io.github.ammaarbakshi.herobrine.mirror;
 
+import java.util.ArrayDeque;
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
@@ -15,6 +19,8 @@ public final class CombatState {
 	long episodeStart;
 	boolean pillaredThisEpisode;
 	@Nullable LivingEntity target;
+	/** Blocks they put under their own feet this fight, newest last (the anti-pillar counter's targets). */
+	private final ArrayDeque<BlockPos> pillarBlocks = new ArrayDeque<>();
 
 	// Movement sampling
 	boolean hasPrevious;
@@ -44,5 +50,26 @@ public final class CombatState {
 
 	public @Nullable LivingEntity target() {
 		return target;
+	}
+
+	public static final int MAX_PILLAR_BLOCKS = 8;
+
+	public void rememberPillarBlock(BlockPos pos) {
+		pillarBlocks.addLast(pos.immutable());
+		while (pillarBlocks.size() > MAX_PILLAR_BLOCKS) {
+			pillarBlocks.removeFirst();
+		}
+	}
+
+	void clearPillarBlocks() {
+		pillarBlocks.clear();
+	}
+
+	public List<BlockPos> pillarBlocks() {
+		return List.copyOf(pillarBlocks);
+	}
+
+	public void forgetPillarBlock(BlockPos pos) {
+		pillarBlocks.remove(pos);
 	}
 }

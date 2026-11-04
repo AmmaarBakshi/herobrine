@@ -2,6 +2,7 @@ package io.github.ammaarbakshi.herobrine.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -9,14 +10,19 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.haunt.HauntDirector;
 import io.github.ammaarbakshi.herobrine.haunt.HauntLevel;
 import io.github.ammaarbakshi.herobrine.haunt.HauntPhase;
 import io.github.ammaarbakshi.herobrine.haunt.HauntState;
+import io.github.ammaarbakshi.herobrine.haunt.WorldEditLog;
+import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvent;
+import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileAnalyzer;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
@@ -46,6 +52,18 @@ public final class HerobrineCommand {
 						.executes(ctx -> sighting(ctx, SightingKind.DISTANT))
 						.then(Commands.literal("stalk").executes(ctx -> sighting(ctx, SightingKind.STALK)))
 						.then(Commands.literal("jumpscare").executes(ctx -> sighting(ctx, SightingKind.JUMPSCARE)))));
+
+		root.then(Commands.literal("sign")
+				.then(Commands.argument("event", StringArgumentType.word())
+						.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(HauntEvents.signIds(), builder))
+						.executes(ctx -> sign(ctx, ctx.getSource().getPlayerOrException()))
+						.then(Commands.argument("player", EntityArgument.player())
+								.executes(ctx -> sign(ctx, EntityArgument.getPlayer(ctx, "player"))))));
+
+		root.then(Commands.literal("undo")
+				.executes(ctx -> undo(ctx, 1))
+				.then(Commands.argument("count", IntegerArgumentType.integer(1, WorldEditLog.MAX_BATCHES))
+						.executes(ctx -> undo(ctx, IntegerArgumentType.getInteger(ctx, "count")))));
 
 		root.then(Commands.literal("reload")
 				.executes(HerobrineCommand::reload));
@@ -100,6 +118,37 @@ public final class HerobrineCommand {
 		}
 		ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.sighting.success", player.getDisplayName()), true);
 		return 1;
+	}
+
+	private static int sign(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
+		String id = StringArgumentType.getString(ctx, "event");
+		HauntEvent event = HauntEvents.byId(id);
+		if (event == null) {
+			ctx.getSource().sendFailure(Component.translatable("herobrine.command.sign.unknown", id, String.join(", ", HauntEvents.signIds())));
+			return 0;
+		}
+		return switch (HauntDirector.force(player, event)) {
+			case FIRED -> {
+				ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.sign.success", id, player.getDisplayName()), true);
+				yield 1;
+			}
+			case NOTHING_FOUND -> {
+				ctx.getSource().sendFailure(Component.translatable("herobrine.command.sign.nothing", id, player.getDisplayName()));
+				yield 0;
+			}
+			case DISABLED -> {
+				ctx.getSource().sendFailure(Component.translatable("herobrine.command.sign.disabled", id));
+				yield 0;
+			}
+		};
+	}
+
+	private static int undo(CommandContext<CommandSourceStack> ctx, int count) {
+		WorldEditLog log = WorldEditLog.get(ctx.getSource().getServer());
+		int events = Math.min(count, log.size());
+		int blocks = log.undo(ctx.getSource().getServer(), count);
+		ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.undo.success", events, blocks), true);
+		return blocks;
 	}
 
 	private static int reload(CommandContext<CommandSourceStack> ctx) {

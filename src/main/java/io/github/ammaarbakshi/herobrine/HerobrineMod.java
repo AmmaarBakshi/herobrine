@@ -13,6 +13,8 @@ import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
 import io.github.ammaarbakshi.herobrine.haunt.HauntDirector;
 import io.github.ammaarbakshi.herobrine.haunt.HauntScheduler;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
+import io.github.ammaarbakshi.herobrine.mirror.PlayerBehaviorRecorder;
+import io.github.ammaarbakshi.herobrine.net.ModNetworking;
 import io.github.ammaarbakshi.herobrine.registry.ModRegistries;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 
@@ -32,10 +34,12 @@ public final class HerobrineMod implements ModInitializer {
 	public void onInitialize() {
 		HerobrineConfig.load();
 		ModRegistries.init();
+		ModNetworking.init();
 		SightingController.init();
 		HauntScheduler.init();
 		HauntEvents.init();
 		HauntDirector.init();
+		PlayerBehaviorRecorder.init();
 		CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
 				HerobrineCommand.register(dispatcher));
 		LOGGER.info("He is watching.");

@@ -1,10 +1,11 @@
 """Synthesizes every sound the mod ships (original, fixed seeds).
 
-Run from the repo root:  python tools/gen_sounds.py
+Run from the repo root:  python tools/gen_sounds.py [name ...]
 Requires: numpy, soundfile (libsndfile with Vorbis).
 
 All sounds are mono so Minecraft attenuates them with distance (stereo sounds are not positional).
 """
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -100,6 +101,39 @@ def heartbeat(rng):
     return normalize(lowpass(out, 300), 0.85)
 
 
+def arrival(rng):
+    """His arrival: a reversed-cymbal-like swell over a sinking sub tone, cut off dead.
+
+    1.5 s long so that, played when the confrontation begins, the cut lands on the lightning.
+    """
+    d = 1.5
+    tt = t(d)
+    n = len(tt)
+    rise = (tt / d) ** 3
+    hiss = (lowpass(rng.standard_normal(n), 6000) - lowpass(rng.standard_normal(n), 1500)) * rise
+    sub = np.sin(2 * np.pi * (48 - 10 * tt / d) * tt) * (0.3 + 0.7 * tt / d)
+    cut = np.ones(n)
+    cut[-int(0.02 * RATE):] = np.linspace(1, 0, int(0.02 * RATE))
+    return normalize((hiss * 0.8 + sub) * envelope(n, 0.2, 0.01, 1.0) * cut, 0.85)
+
+
+def shatter(rng):
+    """A mirror breaking: a noise crack, then many short glassy partials ringing out."""
+    d = 1.6
+    tt = t(d)
+    n = len(tt)
+    crack = rng.standard_normal(n) * np.exp(-tt * 60) * 0.9
+    shards = np.zeros(n)
+    for _ in range(28):
+        start = rng.uniform(0.0, 0.5)
+        freq = rng.uniform(2200, 7500)
+        decay = rng.uniform(8, 30)
+        idx = tt >= start
+        local = tt[idx] - start
+        shards[idx] += np.sin(2 * np.pi * freq * local) * np.exp(-local * decay) * rng.uniform(0.2, 0.6)
+    return normalize(crack + shards * 0.5, 0.8)
+
+
 def save(name, samples):
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / f"{name}.ogg"
@@ -108,5 +142,15 @@ def save(name, samples):
 
 
 if __name__ == "__main__":
-    for i, (name, fn) in enumerate([("jumpscare", jumpscare), ("drone", drone), ("whisper", whisper), ("heartbeat", heartbeat)]):
-        save(name, fn(np.random.default_rng(1000 + i)))
+    # Append new sounds at the end: each sound's seed is its index, so existing sounds keep their
+    # waveform. The Vorbis encoder isn't bit-exact across runs, so regenerate only what you changed:
+    #   python tools/gen_sounds.py arrival shatter
+    sounds = [("jumpscare", jumpscare), ("drone", drone), ("whisper", whisper), ("heartbeat", heartbeat),
+              ("arrival", arrival), ("shatter", shatter)]
+    wanted = set(sys.argv[1:]) or {name for name, _ in sounds}
+    unknown = wanted - {name for name, _ in sounds}
+    if unknown:
+        sys.exit("unknown sounds: " + ", ".join(sorted(unknown)))
+    for i, (name, fn) in enumerate(sounds):
+        if name in wanted:
+            save(name, fn(np.random.default_rng(1000 + i)))

@@ -11,7 +11,8 @@
       "io.github.ammaarbakshi.herobrine.gametest.EntityClientGameTest",
       "io.github.ammaarbakshi.herobrine.gametest.SightingClientGameTest",
       "io.github.ammaarbakshi.herobrine.gametest.HauntClientGameTest",
-      "io.github.ammaarbakshi.herobrine.gametest.RecorderClientGameTest"
+      "io.github.ammaarbakshi.herobrine.gametest.RecorderClientGameTest",
+      "io.github.ammaarbakshi.herobrine.gametest.MirrorClientGameTest"
     ]
   },
   "depends": {

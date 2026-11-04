@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 
 import net.fabricmc.api.ClientModInitializer;
 
+import io.github.ammaarbakshi.herobrine.client.hud.DebugOverlay;
 import io.github.ammaarbakshi.herobrine.client.render.HerobrineRenderer;
 import io.github.ammaarbakshi.herobrine.registry.ModEntities;
 
@@ -12,5 +13,6 @@ public final class HerobrineClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		EntityRenderers.register(ModEntities.HEROBRINE, HerobrineRenderer::new);
+		DebugOverlay.init();
 	}
 }

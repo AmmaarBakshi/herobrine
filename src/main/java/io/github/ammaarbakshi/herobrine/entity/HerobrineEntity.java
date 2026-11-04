@@ -102,6 +102,9 @@ public final class HerobrineEntity extends Monster {
 
 	private Mode mode = Mode.IDLE;
 	private @Nullable UUID watchedPlayerId;
+	/** watchedPlayer() is asked many times a tick by the goals; look it up once per tick. */
+	private @Nullable ServerPlayer watchedCache;
+	private long watchedCacheTick = -1;
 	private int ageInMode;
 	/** Boss mode only; rebuilt lazily from the saved fields below after a reload. */
 	private @Nullable MirrorBrain brain;
@@ -171,6 +174,7 @@ public final class HerobrineEntity extends Monster {
 
 	public void setWatchedPlayer(@Nullable Player player) {
 		this.watchedPlayerId = player == null ? null : player.getUUID();
+		watchedCacheTick = -1;
 	}
 
 	/** The player this instance belongs to, if they are online and in the same level. */
@@ -178,7 +182,12 @@ public final class HerobrineEntity extends Monster {
 		if (watchedPlayerId == null || !(level() instanceof ServerLevel serverLevel)) {
 			return null;
 		}
-		return serverLevel.getPlayerByUUID(watchedPlayerId) instanceof ServerPlayer player ? player : null;
+		long now = serverLevel.getGameTime();
+		if (now != watchedCacheTick || (watchedCache != null && watchedCache.isRemoved())) {
+			watchedCache = serverLevel.getPlayerByUUID(watchedPlayerId) instanceof ServerPlayer player ? player : null;
+			watchedCacheTick = now;
+		}
+		return watchedCache;
 	}
 
 	// --- The Mirror --------------------------------------------------------------------------
@@ -369,6 +378,7 @@ public final class HerobrineEntity extends Monster {
 		super.readAdditionalSaveData(input);
 		mode = Mode.byName(input.getStringOr("HerobrineMode", "idle"));
 		watchedPlayerId = input.read("WatchedPlayer", UUIDUtil.CODEC).orElse(null);
+		watchedCacheTick = -1;
 		savedHealsUsed = input.getIntOr("BossHealsUsed", 0);
 		savedPlacedBlocks = new ArrayList<>(input.read("PillarBlocks", BlockPos.CODEC.listOf()).orElse(List.of()));
 		savedPillarBlock = input.read("PillarBlock", BlockState.CODEC).orElse(null);

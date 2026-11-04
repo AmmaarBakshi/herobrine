@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import net.minecraft.server.level.ServerPlayer;
 
 import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
+import io.github.ammaarbakshi.herobrine.mirror.CounterStrategy;
 import io.github.ammaarbakshi.herobrine.mirror.TacticPlanner;
 import io.github.ammaarbakshi.herobrine.mirror.TacticPlanner.Tactic;
 import io.github.ammaarbakshi.herobrine.mirror.TraitId;
@@ -21,6 +22,10 @@ public final class StrafeGoal extends MirrorGoal {
 
 	private int side = 1;
 	private int sideTimer;
+	/** Gap closer: approaching (rolled once per approach) and the current zig-zag direction. */
+	private boolean approaching;
+	private boolean gapClosing;
+	private int zig = 1;
 
 	public StrafeGoal(HerobrineEntity herobrine) {
 		super(herobrine, EnumSet.of(Flag.MOVE));
@@ -51,16 +56,44 @@ public final class StrafeGoal extends MirrorGoal {
 		double desired = ranged ? Math.max(preferred, MIN_RANGED_RANGE) : Math.max(1.5, Math.min(preferred, MAX_MELEE_RANGE));
 		herobrine.getLookControl().setLookAt(target, 30.0F, 30.0F);
 
-		if (distance > desired + 6.0 || !herobrine.getSensing().hasLineOfSight(target)) {
+		boolean lineOfSight = herobrine.getSensing().hasLineOfSight(target);
+		if (distance > desired + 6.0 || !lineOfSight) {
+			if (!approaching) {
+				approaching = true;
+				gapClosing = !ranged && brain.counter(CounterStrategy.GAP_CLOSER, rng());
+				if (gapClosing) {
+					brain.countered(CounterStrategy.GAP_CLOSER);
+				}
+			}
+			if (gapClosing && lineOfSight && !herobrine.horizontalCollision) {
+				// Counter to kiting: sprint straight at them, zig-zagging to spoil their aim.
+				if (herobrine.tickCount % 8 == 0) {
+					zig = -zig;
+				}
+				herobrine.getNavigation().stop();
+				herobrine.setSprinting(true);
+				move().strafeAt(1.0F, zig * 0.7F, 1.35);
+				herobrine.lookAt(target, 30.0F, 30.0F);
+				return;
+			}
 			// Too far to dance: walk in (sprinting, if that's how they close distance).
-			boolean sprint = !ranged && brain.value(TraitId.SPRINT_HIT_RATE) > 0.3;
+			boolean sprint = gapClosing || (!ranged && brain.value(TraitId.SPRINT_HIT_RATE) > 0.3);
 			herobrine.setSprinting(sprint);
 			herobrine.getNavigation().moveTo(target, sprint ? 1.3 : 1.0);
 			return;
 		}
+		approaching = false;
 		herobrine.getNavigation().stop();
 		if (--sideTimer <= 0) {
-			side = TacticPlanner.strafeSide(brain.value(TraitId.STRAFE_BIAS), rng());
+			double bias = brain.value(TraitId.STRAFE_BIAS);
+			int lead = CounterStrategy.strafeLeadSide(bias);
+			if (lead != 0 && brain.counter(CounterStrategy.STRAFE_LEAD, rng())) {
+				// Facing each other, their right is his left: moving there keeps him in their path.
+				side = -lead;
+				brain.countered(CounterStrategy.STRAFE_LEAD);
+			} else {
+				side = TacticPlanner.strafeSide(bias, rng());
+			}
 			sideTimer = 20 + herobrine.getRandom().nextInt(25);
 		}
 		float forwards = distance > desired + 0.75 ? 1.0F : distance < desired - 1.0 ? -1.0F : 0.0F;

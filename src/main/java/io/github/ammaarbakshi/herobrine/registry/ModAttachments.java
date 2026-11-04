@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
 import io.github.ammaarbakshi.herobrine.HerobrineMod;
+import io.github.ammaarbakshi.herobrine.encounter.EncounterHistory;
 import io.github.ammaarbakshi.herobrine.haunt.HauntState;
 import io.github.ammaarbakshi.herobrine.haunt.PlayerTrail;
 import io.github.ammaarbakshi.herobrine.mirror.CombatState;
@@ -27,6 +28,9 @@ public final class ModAttachments {
 	public static final AttachmentType<PlayerProfile> PROFILE = AttachmentRegistry.create(HerobrineMod.id("profile"),
 			builder -> builder.persistent(ProfileCodecs.PROFILE).copyOnDeath().initializer(PlayerProfile::new));
 
+	public static final AttachmentType<EncounterHistory> ENCOUNTERS = AttachmentRegistry.create(HerobrineMod.id("encounters"),
+			builder -> builder.persistent(EncounterHistory.CODEC).copyOnDeath().initializer(EncounterHistory::new));
+
 	/** Transient: not saved and not copied on death, so it starts fresh after a relog or respawn. */
 	public static final AttachmentType<PlayerTrail> TRAIL = AttachmentRegistry.createDefaulted(HerobrineMod.id("trail"), PlayerTrail::new);
 
@@ -45,6 +49,10 @@ public final class ModAttachments {
 
 	public static PlayerProfile profile(Player player) {
 		return player.getAttachedOrCreate(PROFILE);
+	}
+
+	public static EncounterHistory encounters(Player player) {
+		return player.getAttachedOrCreate(ENCOUNTERS);
 	}
 
 	public static PlayerTrail trail(Player player) {

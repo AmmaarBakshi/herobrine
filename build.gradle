@@ -80,8 +80,13 @@ processResources {
 	}
 }
 
+def testRunDir = layout.buildDirectory.dir('test-run')
+
 test {
 	useJUnitPlatform()
+	// Minecraft's log4j config writes logs/ into the working dir; keep that out of the repo root.
+	workingDir = testRunDir.get().asFile
+	doFirst { testRunDir.get().asFile.mkdirs() }
 	testLogging {
 		events 'failed', 'skipped'
 		exceptionFormat 'full'

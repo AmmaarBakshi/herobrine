@@ -109,15 +109,28 @@ public final class SightingController {
 		if (isActive(player)) {
 			return false;
 		}
+		BlockPos best = findHiddenSpot(player, DISTANT_MIN, DISTANT_MAX);
+		if (best == null) {
+			return false;
+		}
+		int stare = 10 + player.getRandom().nextInt(21); // 0.5 - 1.5 s
+		return spawn(player, best, Mode.SIGHTING, stare, DISTANT_MAX_AGE, null);
+	}
+
+	/**
+	 * A standable spot {@code minDistance..maxDistance} away, just outside the player's view
+	 * (70-160 degrees off where they look) but in clear line of sight, so turning their head
+	 * reveals it. Prefers high ground and darkness: ridgelines, cave mouths.
+	 */
+	public static @Nullable BlockPos findHiddenSpot(ServerPlayer player, double minDistance, double maxDistance) {
 		ServerLevel level = player.level();
 		RandomSource random = player.getRandom();
 		boolean surface = level.canSeeSky(player.blockPosition().above());
 		BlockPos best = null;
 		double bestScore = Double.NEGATIVE_INFINITY;
-
 		for (int i = 0; i < SEARCH_ATTEMPTS; i++) {
 			double offset = (70 + random.nextDouble() * 90) * (random.nextBoolean() ? 1 : -1);
-			double distance = DISTANT_MIN + random.nextDouble() * (DISTANT_MAX - DISTANT_MIN);
+			double distance = minDistance + random.nextDouble() * (maxDistance - minDistance);
 			BlockPos feet = columnAt(player, offset, distance, surface ? 12 : 8, surface);
 			if (feet == null) {
 				continue;
@@ -126,7 +139,6 @@ public final class SightingController {
 			if (LookDetector.inFieldOfView(player, eye) || !LookDetector.hasLineOfSight(player, eye)) {
 				continue;
 			}
-			// Ridgelines and dark spots read best: prefer high ground and low light.
 			double elevation = Mth.clamp(feet.getY() - player.getY(), 0, 10);
 			double darkness = 15 - level.getMaxLocalRawBrightness(feet);
 			double score = elevation * 0.6 + darkness * 0.3 + random.nextDouble();
@@ -135,11 +147,7 @@ public final class SightingController {
 				best = feet;
 			}
 		}
-		if (best == null) {
-			return false;
-		}
-		int stare = 10 + random.nextInt(21); // 0.5 - 1.5 s
-		return spawn(player, best, Mode.SIGHTING, stare, DISTANT_MAX_AGE, null);
+		return best;
 	}
 
 	/** Close behind the player, outside their view; gone the moment they turn around. */

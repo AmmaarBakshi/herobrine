@@ -99,6 +99,26 @@ where you are. If you run more than 64 blocks, he appears behind you.
 Either way the fight is recorded and he will be back. There is no confrontation on
 Peaceful; signs and sightings still happen.
 
+### How he adapts
+
+After each fight he notes the two habits you leaned on most. Next time he brings a
+counter for each, and he uses it more often every time he comes back: 15% of his
+decisions after one fight, up to 60%. The rest of the time he still mirrors you. The first
+time a counter works in a fight, he tells you.
+
+| Your habit | His counter |
+|---|---|
+| Blocking with a shield | Brings an axe and swaps to it when you raise the shield, disabling it the vanilla way |
+| Strafing mostly one way | Moves to where you are going instead of mirroring you |
+| Pillaring up | Breaks the top of your pillar (only blocks you placed, only if `griefing` allows), else shoots |
+| Kiting with a bow | Sprints straight at you, zig-zagging |
+| Always healing at the same HP | Goes all in with jump crits when you're just above that point |
+| Pearling away | Throws a pearl after you and lands next to you |
+
+He also talks during the fight, every 15 to 30 seconds, quoting your real habits
+("Right again.", "You always heal at 3 hearts."). Set `adaptiveCounters` to
+`false` for a Herobrine who only ever mirrors you.
+
 ### Haunt events
 
 | Id | What happens | Needs `griefing` |
@@ -174,7 +194,7 @@ You need a JDK 25. If none is installed, Gradle downloads one automatically
 - [x] **M5** Combat behaviour recorder, player profile, persistence
 - [x] **M6** Mirror AI driven by the profile
 - [x] **M7** Confrontation, boss fight, Mirror Shard, advancement
-- [ ] **M8** Adaptive counters and taunts
+- [x] **M8** Adaptive counters and taunts
 - [ ] **M9** Sounds, dedicated-server testing, performance pass
 
 ## Contributing

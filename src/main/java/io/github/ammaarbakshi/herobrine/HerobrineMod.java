@@ -10,6 +10,9 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 import io.github.ammaarbakshi.herobrine.command.HerobrineCommand;
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.haunt.HauntDirector;
+import io.github.ammaarbakshi.herobrine.haunt.HauntScheduler;
+import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
 import io.github.ammaarbakshi.herobrine.registry.ModRegistries;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 
@@ -30,6 +33,9 @@ public final class HerobrineMod implements ModInitializer {
 		HerobrineConfig.load();
 		ModRegistries.init();
 		SightingController.init();
+		HauntScheduler.init();
+		HauntEvents.init();
+		HauntDirector.init();
 		CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
 				HerobrineCommand.register(dispatcher));
 		LOGGER.info("He is watching.");

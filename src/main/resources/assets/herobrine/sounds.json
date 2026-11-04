@@ -1,0 +1,18 @@
+{
+  "jumpscare": {
+    "subtitle": "subtitles.herobrine.jumpscare",
+    "sounds": ["herobrine:jumpscare"]
+  },
+  "drone": {
+    "subtitle": "subtitles.herobrine.drone",
+    "sounds": [{"name": "herobrine:drone", "stream": true}]
+  },
+  "whisper": {
+    "subtitle": "subtitles.herobrine.whisper",
+    "sounds": ["herobrine:whisper"]
+  },
+  "heartbeat": {
+    "subtitle": "subtitles.herobrine.heartbeat",
+    "sounds": ["herobrine:heartbeat"]
+  }
+}

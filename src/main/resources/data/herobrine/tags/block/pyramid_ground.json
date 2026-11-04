@@ -1,0 +1,12 @@
+{
+  "values": [
+    "#minecraft:sand",
+    "#minecraft:substrate_overworld",
+    "#minecraft:base_stone_overworld",
+    "#minecraft:terracotta",
+    "minecraft:gravel",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+    "minecraft:clay"
+  ]
+}

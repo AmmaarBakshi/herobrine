@@ -38,10 +38,10 @@ All commands need op level 2.
 | `/herobrine profile <player>` | Every learned trait with its sample count (grey = not known yet) |
 | `/herobrine profile <player> reset` | Wipe the profile |
 | `/herobrine profile <player> preset <name>` | Load a test profile: `bow_kiter`, `sword_spammer`, `shield_turtle`, `pillar_coward` |
+| `/herobrine summon <player>` | Start a Mirror fight right now |
 | `/herobrine perf [reset]` | Measured recorder cost per player per tick |
 | `/herobrine reload` | Reload `config/herobrine.json` |
 
-Confrontation commands arrive with their milestone.
 
 ### What he learns
 
@@ -56,6 +56,24 @@ Set `debugOverlay` to `true` to see the values live in a corner of the screen.
 
 Measured cost: about **15 µs per player per tick while fighting** (budget: 100 µs), and less
 out of combat. Check your own server with `/herobrine perf`.
+
+### How he fights
+
+In a fight Herobrine plays back your habits. A small utility planner picks his tactic twice a
+second:
+
+- **Heal** when he drops to the HP at which you heal, using what you heal with, up to
+  `healItemCap` times.
+- **Retreat** at your retreat point, escaping the way you do: running, pillaring up with your
+  favourite block, or pearling away.
+- **Fight** otherwise, with your bow as often as you shoot.
+
+Within a tactic he copies how you do things. He keeps your distance and strafes to your side
+at your intensity. He swings at your average charge (a spam-clicker gets many weak hits),
+jump-crits and sprint-hits as often as you do, draws the bow for as long as you do, and raises
+the shield as often as you, after your reaction delay. He wears unenchanted copies of your
+armour and weapon. Nothing he holds ever drops, his arrows can't be picked up, and any pillar
+he builds is removed when the fight ends.
 
 ### Haunt events
 
@@ -130,7 +148,7 @@ You need a JDK 25. If none is installed, Gradle downloads one automatically
 - [x] **M3** Sightings and look detection
 - [x] **M4** Haunt director, sign events, world-edit safety and undo
 - [x] **M5** Combat behaviour recorder, player profile, persistence
-- [ ] **M6** Mirror AI driven by the profile
+- [x] **M6** Mirror AI driven by the profile
 - [ ] **M7** Confrontation, boss fight, Mirror Shard, advancement
 - [ ] **M8** Adaptive counters and taunts
 - [ ] **M9** Sounds, dedicated-server testing, performance pass

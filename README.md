@@ -30,7 +30,7 @@ All commands need op level 2.
 
 | Command | Does |
 |---|---|
-| `/herobrine status [player]` | Haunt level, phase, profile confidence, encounters, sightings |
+| `/herobrine status [player]` | Haunt level, phase, profile confidence, encounters (won/lost), sightings |
 | `/herobrine haunt set <player> <0-100>` | Set a player's haunt level |
 | `/herobrine sighting <player> [stalk\|jumpscare]` | Force a sighting |
 | `/herobrine sign <event> [player]` | Force a haunt event (tab-completes the ids below) |
@@ -38,7 +38,7 @@ All commands need op level 2.
 | `/herobrine profile <player>` | Every learned trait with its sample count (grey = not known yet) |
 | `/herobrine profile <player> reset` | Wipe the profile |
 | `/herobrine profile <player> preset <name>` | Load a test profile: `bow_kiter`, `sword_spammer`, `shield_turtle`, `pillar_coward` |
-| `/herobrine summon <player>` | Start a Mirror fight right now |
+| `/herobrine summon <player>` | Start the confrontation now (full arrival sequence) |
 | `/herobrine perf [reset]` | Measured recorder cost per player per tick |
 | `/herobrine reload` | Reload `config/herobrine.json` |
 
@@ -74,6 +74,30 @@ jump-crits and sprint-hits as often as you do, draws the bow for as long as you 
 the shield as often as you, after your reaction delay. He wears unenchanted copies of your
 armour and weapon. Nothing he holds ever drops, his arrows can't be picked up, and any pillar
 he builds is removed when the fight ends.
+
+### The confrontation
+
+He comes for you in either of two ways:
+
+- **Naturally**: your haunt level is 90 or more, he knows you well enough (profile
+  confidence at least `requiredConfidence`), it's night, and nobody is within 64 blocks.
+  This happens at most once per in-game day.
+- **By shrine**: build a 3x3 floor of gold blocks, put netherrack on the centre, a
+  redstone torch on each of its four sides, and light the netherrack. This forces the fight
+  with whatever he has learned so far.
+
+The music stops, the world goes dark and lightning strikes, and he is standing about 10
+blocks away holding your kind of weapon, with a **Herobrine** boss bar. The fight happens
+where you are. If you run more than 64 blocks, he appears behind you.
+
+- **You win**: he drops a **Mirror Shard** and you get the *Know Thyself* challenge.
+  Right-click the shard to see *What he learned about you*: every habit he has recorded,
+  as values and bars.
+- **You lose**: he waits at your respawn point, says one line, and leaves. He never takes
+  your items.
+
+Either way the fight is recorded and he will be back. There is no confrontation on
+Peaceful; signs and sightings still happen.
 
 ### Haunt events
 
@@ -149,7 +173,7 @@ You need a JDK 25. If none is installed, Gradle downloads one automatically
 - [x] **M4** Haunt director, sign events, world-edit safety and undo
 - [x] **M5** Combat behaviour recorder, player profile, persistence
 - [x] **M6** Mirror AI driven by the profile
-- [ ] **M7** Confrontation, boss fight, Mirror Shard, advancement
+- [x] **M7** Confrontation, boss fight, Mirror Shard, advancement
 - [ ] **M8** Adaptive counters and taunts
 - [ ] **M9** Sounds, dedicated-server testing, performance pass
 

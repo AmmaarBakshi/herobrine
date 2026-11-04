@@ -4,7 +4,8 @@ A Fabric mod for Minecraft **26.3** in which Herobrine haunts you, quietly studi
 *how you play*, then shows up as a doppelgänger boss that fights exactly like you,
 and gets better at countering you every time he comes back.
 
-> **Status:** early development. See [Roadmap](#roadmap) for what works today.
+> **Status:** feature-complete for v1 (milestones M1-M9). Every milestone is checked by an
+> in-game test; see [Tests](#tests).
 
 ## The experience
 
@@ -39,7 +40,7 @@ All commands need op level 2.
 | `/herobrine profile <player> reset` | Wipe the profile |
 | `/herobrine profile <player> preset <name>` | Load a test profile: `bow_kiter`, `sword_spammer`, `shield_turtle`, `pillar_coward` |
 | `/herobrine summon <player>` | Start the confrontation now (full arrival sequence) |
-| `/herobrine perf [reset]` | Measured recorder cost per player per tick |
+| `/herobrine perf [reset]` | Measured cost of the recorder, the haunt systems and the boss AI |
 | `/herobrine reload` | Reload `config/herobrine.json` |
 
 
@@ -74,6 +75,10 @@ jump-crits and sprint-hits as often as you do, draws the bow for as long as you 
 the shield as often as you, after your reaction delay. He wears unenchanted copies of your
 armour and weapon. Nothing he holds ever drops, his arrows can't be picked up, and any pillar
 he builds is removed when the fight ends.
+
+Measured cost on a dedicated server: about **250 µs per tick for one boss** (his goals, paths
+and movement), and under 30 µs per server tick for the haunt systems. `/herobrine perf`
+shows both.
 
 ### The confrontation
 
@@ -170,11 +175,36 @@ cd herobrine
 ./gradlew runClient        # dev client
 ./gradlew runServer        # dev dedicated server (run/server)
 ./gradlew runClientGameTest  # boots the real game and runs in-game tests
-./gradlew runClientGameTest -Pgametest=Haunt  # just one (Command, Entity, Sighting, Haunt, Recorder)
+./gradlew runClientGameTest -Pgametest=Haunt  # only some, by name fragment (comma-separated)
 ```
 
 You need a JDK 25. If none is installed, Gradle downloads one automatically
 (toolchain resolver).
+
+### Tests
+
+`./gradlew build` runs the JUnit tests for the pure logic (trait averages, profile
+confidence, tactic and counter selection, taunts, shrine pattern, config clamping, perf
+meters). `./gradlew runClientGameTest` boots the real game and checks each milestone
+in-game, saving screenshots to `build/run/clientGameTest/screenshots/`:
+
+| Test | Checks |
+|---|---|
+| `Command` | `/herobrine` is registered and `status` works |
+| `Entity` | Spawn egg, staring, glowing eyes in a pitch-black room |
+| `Sighting` | Sightings appear out of view and vanish when looked at |
+| `Haunt` | Every sign event, the bed/chest safety rules, undo |
+| `Recorder` | Fight 10 zombies strafing right: strafe bias and sword are learned and survive death and restart; recorder cost |
+| `Mirror` | `bow_kiter` and `sword_spammer` produce different fights; heal and pillar escapes |
+| `Confrontation` | Shrine, natural trigger, win (shard, advancement), loss (aftermath), Peaceful, restart |
+| `Counter` | Second fight against a shield user brings an axe that disables the shield; every counter; taunts |
+| `DedicatedServer` | A real dedicated server and network connection: payloads, shard screen, a full fight, leaving mid-fight, rejoining; boss AI cost |
+
+To try it with two players by hand, run `./gradlew runServer` (accept the EULA in
+`run/server/eula.txt` the first time), then start two clients from a built jar or from
+your launcher and join `localhost`. Each player has their own haunt level and profile, and
+a Herobrine targets exactly one of them: the other can see him, but only the target makes
+him vanish or fights him.
 
 ### Reproducible builds
 
@@ -183,7 +213,7 @@ You need a JDK 25. If none is installed, Gradle downloads one automatically
 - Jars are built without file timestamps and with a stable entry order, so the same
   commit produces a byte-identical jar on any machine.
 - Line endings are normalised via `.gitattributes`.
-- Generated assets (icon, textures) come from deterministic scripts in `tools/`.
+- Generated assets (icon, textures, sounds) come from fixed-seed scripts in `tools/`.
 
 ## Roadmap
 
@@ -195,7 +225,7 @@ You need a JDK 25. If none is installed, Gradle downloads one automatically
 - [x] **M6** Mirror AI driven by the profile
 - [x] **M7** Confrontation, boss fight, Mirror Shard, advancement
 - [x] **M8** Adaptive counters and taunts
-- [ ] **M9** Sounds, dedicated-server testing, performance pass
+- [x] **M9** Sounds, dedicated-server testing, performance pass
 
 ## Contributing
 

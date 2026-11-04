@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
 import io.github.ammaarbakshi.herobrine.haunt.HauntDirector;
 import io.github.ammaarbakshi.herobrine.haunt.HauntLevel;
 import io.github.ammaarbakshi.herobrine.haunt.HauntPhase;
@@ -25,6 +26,7 @@ import io.github.ammaarbakshi.herobrine.haunt.HauntState;
 import io.github.ammaarbakshi.herobrine.haunt.WorldEditLog;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvent;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
+import io.github.ammaarbakshi.herobrine.mirror.CounterPlan;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerBehaviorRecorder;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerProfile;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileAnalyzer;
@@ -86,6 +88,10 @@ public final class HerobrineCommand {
 					PlayerBehaviorRecorder.resetCost();
 					return perf(ctx);
 				})));
+
+		root.then(Commands.literal("summon")
+				.then(Commands.argument("player", EntityArgument.player())
+						.executes(HerobrineCommand::summon)));
 
 		root.then(Commands.literal("reload")
 				.executes(HerobrineCommand::reload));
@@ -221,6 +227,16 @@ public final class HerobrineCommand {
 		}
 		ModAttachments.profile(player).copyFrom(preset.build());
 		ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.profile.preset", player.getDisplayName(), name), true);
+		return 1;
+	}
+
+	private static int summon(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
+		if (ConfrontationManager.summon(player, CounterPlan.NONE) == null) {
+			ctx.getSource().sendFailure(Component.translatable("herobrine.command.summon.failed", player.getDisplayName()));
+			return 0;
+		}
+		ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.summon.success", player.getDisplayName()), true);
 		return 1;
 	}
 

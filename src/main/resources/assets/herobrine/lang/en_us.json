@@ -103,6 +103,8 @@
   "herobrine.command.profile.reset": "Wiped %s's profile",
   "herobrine.command.profile.preset": "Loaded the %2$s preset into %1$s's profile",
   "herobrine.command.profile.unknown_preset": "Unknown preset %s. Known: %s",
+  "herobrine.command.summon.success": "The Mirror comes for %s",
+  "herobrine.command.summon.failed": "No room near %s for him to stand",
   "herobrine.command.perf": "Recorder: %s µs per player-tick on average, worst %s µs, over %s player-ticks",
   "herobrine.debug.header": "Herobrine is watching",
   "herobrine.debug.header.combat": "Herobrine is learning..."

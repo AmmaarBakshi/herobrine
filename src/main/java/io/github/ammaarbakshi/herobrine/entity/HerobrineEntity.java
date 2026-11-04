@@ -1,10 +1,13 @@
 package io.github.ammaarbakshi.herobrine.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,7 +24,21 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.entity.ai.HerobrineMoveControl;
+import io.github.ammaarbakshi.herobrine.entity.ai.MirrorBowGoal;
+import io.github.ammaarbakshi.herobrine.entity.ai.MirrorBrain;
+import io.github.ammaarbakshi.herobrine.entity.ai.MirrorHealGoal;
+import io.github.ammaarbakshi.herobrine.entity.ai.MirrorMeleeGoal;
+import io.github.ammaarbakshi.herobrine.entity.ai.MirrorRetreatGoal;
+import io.github.ammaarbakshi.herobrine.entity.ai.MirrorShieldGoal;
+import io.github.ammaarbakshi.herobrine.entity.ai.MirrorTacticSelector;
+import io.github.ammaarbakshi.herobrine.entity.ai.PillarGoal;
 import io.github.ammaarbakshi.herobrine.entity.ai.StareGoal;
+import io.github.ammaarbakshi.herobrine.entity.ai.StrafeGoal;
+import io.github.ammaarbakshi.herobrine.mirror.CounterPlan;
+import io.github.ammaarbakshi.herobrine.mirror.PlayerProfile;
+import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 
 /**
  * Herobrine. One instance always belongs to exactly one player (its "watched" player);
@@ -73,9 +90,14 @@ public final class HerobrineEntity extends Monster {
 	private Mode mode = Mode.IDLE;
 	private @Nullable UUID watchedPlayerId;
 	private int ageInMode;
+	/** Boss mode only; rebuilt lazily from the saved fields below after a reload. */
+	private @Nullable MirrorBrain brain;
+	private int savedHealsUsed;
+	private List<BlockPos> savedPlacedBlocks = List.of();
 
 	public HerobrineEntity(EntityType<? extends HerobrineEntity> type, Level level) {
 		super(type, level);
+		this.moveControl = new HerobrineMoveControl(this);
 		// His gear is a copy of the player's; it must never drop (no duping).
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setDropChance(slot, 0.0F);
@@ -94,6 +116,16 @@ public final class HerobrineEntity extends Monster {
 	@Override
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
+		// Boss mode: the selector picks a tactic, the rest act on it (see MirrorTacticSelector).
+		goalSelector.addGoal(1, new MirrorTacticSelector(this));
+		goalSelector.addGoal(2, new MirrorHealGoal(this));
+		goalSelector.addGoal(2, new MirrorRetreatGoal(this));
+		goalSelector.addGoal(2, new PillarGoal(this));
+		goalSelector.addGoal(3, new MirrorBowGoal(this));
+		goalSelector.addGoal(3, new MirrorMeleeGoal(this));
+		goalSelector.addGoal(4, new StrafeGoal(this));
+		goalSelector.addGoal(4, new MirrorShieldGoal(this));
+		// Every other mode: stand still and stare.
 		goalSelector.addGoal(5, new StareGoal(this));
 	}
 
@@ -128,6 +160,41 @@ public final class HerobrineEntity extends Monster {
 		return serverLevel.getPlayerByUUID(watchedPlayerId) instanceof ServerPlayer player ? player : null;
 	}
 
+	// --- The Mirror --------------------------------------------------------------------------
+
+	/**
+	 * Turns this instance into the boss for {@code player}: their health budget, their gear,
+	 * and a brain built from a snapshot of their profile.
+	 */
+	public void startBoss(ServerPlayer player, CounterPlan plan) {
+		HerobrineConfig config = HerobrineConfig.get();
+		setMode(Mode.BOSS);
+		setWatchedPlayer(player);
+		getAttribute(Attributes.MAX_HEALTH).setBaseValue(config.bossHealth);
+		setHealth(getMaxHealth());
+		PlayerProfile profile = ModAttachments.profile(player);
+		brain = MirrorBrain.create(this, profile, config, plan, 0);
+		brain.equip(profile.gear());
+	}
+
+	/** The boss brain, or null outside boss mode (or while his player is offline). */
+	public @Nullable MirrorBrain brain() {
+		if (mode != Mode.BOSS) {
+			return null;
+		}
+		if (brain == null) {
+			ServerPlayer player = watchedPlayer();
+			if (player == null) {
+				return null;
+			}
+			// Reloaded mid-fight: same player, same heal budget, same blocks to clean up.
+			brain = MirrorBrain.create(this, ModAttachments.profile(player), HerobrineConfig.get(), CounterPlan.NONE, savedHealsUsed);
+			brain.restorePlaced(savedPlacedBlocks);
+			savedPlacedBlocks = List.of();
+		}
+		return brain;
+	}
+
 	/** Leaves without a trace: no death animation, no particles, no drops. */
 	public void vanish() {
 		discard();
@@ -139,6 +206,15 @@ public final class HerobrineEntity extends Monster {
 	public void tick() {
 		super.tick();
 		ageInMode++;
+	}
+
+	@Override
+	public void remove(RemovalReason reason) {
+		if (reason.shouldDestroy() && brain != null && level() instanceof ServerLevel serverLevel) {
+			// The fight is over (or he was removed): take the pillar back down.
+			brain.cleanUp(serverLevel);
+		}
+		super.remove(reason);
 	}
 
 	@Override
@@ -192,6 +268,13 @@ public final class HerobrineEntity extends Monster {
 		super.addAdditionalSaveData(output);
 		output.putString("HerobrineMode", mode.name().toLowerCase(Locale.ROOT));
 		output.storeNullable("WatchedPlayer", UUIDUtil.CODEC, watchedPlayerId);
+		if (mode == Mode.BOSS) {
+			output.putInt("BossHealsUsed", brain != null ? brain.healsUsed() : savedHealsUsed);
+			List<BlockPos> placed = brain != null ? brain.placedBlocks() : savedPlacedBlocks;
+			if (!placed.isEmpty()) {
+				output.store("PillarBlocks", BlockPos.CODEC.listOf(), placed);
+			}
+		}
 	}
 
 	@Override
@@ -199,5 +282,8 @@ public final class HerobrineEntity extends Monster {
 		super.readAdditionalSaveData(input);
 		mode = Mode.byName(input.getStringOr("HerobrineMode", "idle"));
 		watchedPlayerId = input.read("WatchedPlayer", UUIDUtil.CODEC).orElse(null);
+		savedHealsUsed = input.getIntOr("BossHealsUsed", 0);
+		savedPlacedBlocks = new ArrayList<>(input.read("PillarBlocks", BlockPos.CODEC.listOf()).orElse(List.of()));
+		brain = null;
 	}
 }

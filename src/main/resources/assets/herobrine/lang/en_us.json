@@ -9,5 +9,13 @@
   "herobrine.command.status.haunt": "  Haunt level: %s/%s (%s)",
   "herobrine.command.status.confidence": "  Profile confidence: %s%%",
   "herobrine.command.status.encounters": "  Encounters: %s",
-  "herobrine.command.reload.success": "Reloaded config/herobrine.json"
+  "herobrine.command.reload.success": "Reloaded config/herobrine.json",
+  "herobrine.command.status.sightings": "  Sightings: %s",
+  "herobrine.command.haunt.set": "Set %s's haunt level to %s (%s)",
+  "herobrine.command.sighting.success": "Herobrine appears for %s",
+  "herobrine.command.sighting.failed": "Couldn't find a hidden spot near %s for Herobrine to appear",
+  "subtitles.herobrine.jumpscare": "Something screams",
+  "subtitles.herobrine.drone": "Low hum",
+  "subtitles.herobrine.whisper": "Someone whispers",
+  "subtitles.herobrine.heartbeat": "Heartbeat"
 }

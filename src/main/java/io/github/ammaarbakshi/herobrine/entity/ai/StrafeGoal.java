@@ -19,6 +19,8 @@ public final class StrafeGoal extends MirrorGoal {
 	private static final double MAX_MELEE_RANGE = 2.6;
 	private static final double MIN_RANGED_RANGE = 8.0;
 	private static final double STRAFE_SPEED = 0.9;
+	/** Paths are expensive; while walking in, recompute one at most this often (vanilla melee: 4-11). */
+	private static final int REPATH_TICKS = 8;
 
 	private int side = 1;
 	private int sideTimer;
@@ -26,6 +28,7 @@ public final class StrafeGoal extends MirrorGoal {
 	private boolean approaching;
 	private boolean gapClosing;
 	private int zig = 1;
+	private int repathIn;
 
 	public StrafeGoal(HerobrineEntity herobrine) {
 		super(herobrine, EnumSet.of(Flag.MOVE));
@@ -60,6 +63,7 @@ public final class StrafeGoal extends MirrorGoal {
 		if (distance > desired + 6.0 || !lineOfSight) {
 			if (!approaching) {
 				approaching = true;
+				repathIn = 0;
 				gapClosing = !ranged && brain.counter(CounterStrategy.GAP_CLOSER, rng());
 				if (gapClosing) {
 					brain.countered(CounterStrategy.GAP_CLOSER);
@@ -79,7 +83,13 @@ public final class StrafeGoal extends MirrorGoal {
 			// Too far to dance: walk in (sprinting, if that's how they close distance).
 			boolean sprint = gapClosing || (!ranged && brain.value(TraitId.SPRINT_HIT_RATE) > 0.3);
 			herobrine.setSprinting(sprint);
-			herobrine.getNavigation().moveTo(target, sprint ? 1.3 : 1.0);
+			double speed = sprint ? 1.3 : 1.0;
+			if (--repathIn <= 0 || herobrine.getNavigation().isDone()) {
+				herobrine.getNavigation().moveTo(target, speed);
+				repathIn = REPATH_TICKS;
+			} else {
+				herobrine.getNavigation().setSpeedModifier(speed);
+			}
 			return;
 		}
 		approaching = false;

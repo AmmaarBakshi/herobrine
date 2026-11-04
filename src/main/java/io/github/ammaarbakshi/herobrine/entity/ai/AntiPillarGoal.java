@@ -31,12 +31,14 @@ public final class AntiPillarGoal extends MirrorGoal {
 	private static final double MAX_HORIZONTAL = 10.0;
 	private static final double REACH = 4.5;
 	private static final int BREAK_TICKS = 12;
+	private static final int REPATH_TICKS = 10;
 
 	/** One roll per time they go up; reset once they're back down. */
 	private boolean rolled;
 	private boolean engaged;
 	private @Nullable BlockPos breaking;
 	private int breakTicks;
+	private int repathIn;
 
 	public AntiPillarGoal(HerobrineEntity herobrine) {
 		super(herobrine, EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -70,6 +72,7 @@ public final class AntiPillarGoal extends MirrorGoal {
 	public void start() {
 		breaking = null;
 		breakTicks = 0;
+		repathIn = 0;
 	}
 
 	@Override
@@ -112,9 +115,13 @@ public final class AntiPillarGoal extends MirrorGoal {
 			}
 		}
 		if (block == null) {
-			herobrine.getNavigation().moveTo(nearest.getX() + 0.5, nearest.getY(), nearest.getZ() + 0.5, 1.2);
+			if (--repathIn <= 0 || herobrine.getNavigation().isDone()) {
+				herobrine.getNavigation().moveTo(nearest.getX() + 0.5, nearest.getY(), nearest.getZ() + 0.5, 1.2);
+				repathIn = REPATH_TICKS;
+			}
 			return;
 		}
+		repathIn = 0;
 		Vec3 centre = Vec3.atCenterOf(block);
 		herobrine.getNavigation().stop();
 		herobrine.getLookControl().setLookAt(centre.x, centre.y, centre.z);

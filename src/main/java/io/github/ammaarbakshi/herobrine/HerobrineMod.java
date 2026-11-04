@@ -17,6 +17,7 @@ import io.github.ammaarbakshi.herobrine.haunt.HauntScheduler;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerBehaviorRecorder;
 import io.github.ammaarbakshi.herobrine.net.ModNetworking;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModRegistries;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 
@@ -44,6 +45,7 @@ public final class HerobrineMod implements ModInitializer {
 		PlayerBehaviorRecorder.init();
 		ConfrontationManager.init();
 		ShrineDetector.init();
+		Perf.init();
 		CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
 				HerobrineCommand.register(dispatcher));
 		LOGGER.info("He is watching.");

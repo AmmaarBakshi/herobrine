@@ -17,11 +17,12 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
-import io.github.ammaarbakshi.herobrine.mirror.PlayerBehaviorRecorder;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerProfile;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileCodecs;
 import io.github.ammaarbakshi.herobrine.mirror.TraitId;
 import io.github.ammaarbakshi.herobrine.mirror.WeaponType;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
+import io.github.ammaarbakshi.herobrine.perf.PerfMeter;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 
 /**
@@ -45,7 +46,7 @@ public final class RecorderClientGameTest implements FabricClientGameTest {
 			setUp(world);
 			context.waitTicks(5);
 			world.getServer().runOnServer(server -> {
-				PlayerBehaviorRecorder.resetCost();
+				Perf.RECORDER.reset();
 				// Only the recorder under test: no random haunt events.
 				ModAttachments.trail(GameTests.player(server)).nextEventTick = Long.MAX_VALUE;
 			});
@@ -54,7 +55,7 @@ public final class RecorderClientGameTest implements FabricClientGameTest {
 				fightOneZombie(context, world, i);
 				if (i == 0) {
 					// First fight warms up the JIT and class loading; measure the steady state.
-					world.getServer().runOnServer(server -> PlayerBehaviorRecorder.resetCost());
+					world.getServer().runOnServer(server -> Perf.RECORDER.reset());
 				}
 			}
 			context.getInput().releaseKey(options -> options.keyRight);
@@ -70,10 +71,10 @@ public final class RecorderClientGameTest implements FabricClientGameTest {
 				GameTests.check(profile.weaponPref().known(min) && profile.topWeapon() == WeaponType.SWORD,
 						"sword is not the known top weapon: " + profile.weaponPref());
 				GameTests.check(profile.gear().weapon().equals("minecraft:iron_sword"), "gear did not record the sword: " + profile.gear());
-				PlayerBehaviorRecorder.Cost cost = PlayerBehaviorRecorder.cost();
+				PerfMeter.Snapshot cost = Perf.RECORDER.snapshot();
 				System.out.printf("[herobrine-perf] recorder %.2f us per player-tick (worst %.1f us) over %d player-ticks%n",
-						cost.averageMicrosPerPlayerTick(), cost.worstMicros(), cost.playerTicks());
-				GameTests.check(cost.averageMicrosPerPlayerTick() < 100.0, "recorder over 0.1 ms per player-tick: " + cost);
+						cost.averageMicros(), cost.worstMicros(), cost.units());
+				GameTests.check(cost.averageMicros() < 100.0, "recorder over 0.1 ms per player-tick: " + cost);
 				return encode(profile);
 			});
 

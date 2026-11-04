@@ -48,6 +48,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
 import io.github.ammaarbakshi.herobrine.net.DebugProfilePayload;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 
 /**
@@ -72,26 +73,7 @@ public final class PlayerBehaviorRecorder {
 
 	private static @Nullable Stat<Identifier> jumpStat;
 
-	// Cost accounting (server thread only).
-	private static long nanos;
-	private static long playerTicks;
-	private static long worstTickNanos;
-
 	private PlayerBehaviorRecorder() {
-	}
-
-	/** Measured recorder cost so far. */
-	public record Cost(double averageMicrosPerPlayerTick, double worstMicros, long playerTicks) {
-	}
-
-	public static Cost cost() {
-		return new Cost(playerTicks == 0 ? 0.0 : nanos / 1000.0 / playerTicks, worstTickNanos / 1000.0, playerTicks);
-	}
-
-	public static void resetCost() {
-		nanos = 0;
-		playerTicks = 0;
-		worstTickNanos = 0;
 	}
 
 	public static void init() {
@@ -266,7 +248,6 @@ public final class PlayerBehaviorRecorder {
 		for (int i = 0; i < players.size(); i++) {
 			ServerPlayer player = players.get(i);
 			long start = System.nanoTime();
-			playerTicks++;
 			if (!player.isSpectator() && player.isAlive()) {
 				CombatState state = state(player);
 				trackItemUse(player, state, now);
@@ -274,9 +255,8 @@ public final class PlayerBehaviorRecorder {
 					sample(player, state, now, config);
 				}
 			}
-			long spent = System.nanoTime() - start;
-			nanos += spent;
-			worstTickNanos = Math.max(worstTickNanos, spent);
+			// Event handlers since the last player-tick were charged to this unit already.
+			Perf.RECORDER.sample(System.nanoTime() - start);
 			// The debug HUD is an opt-in diagnostic, not part of the recorder's cost.
 			CombatState state = player.getAttached(ModAttachments.COMBAT);
 			if (state != null && state.debugPending) {
@@ -409,7 +389,7 @@ public final class PlayerBehaviorRecorder {
 	// --- Helpers ------------------------------------------------------------------------------
 
 	private static void account(long start) {
-		nanos += System.nanoTime() - start;
+		Perf.RECORDER.charge(System.nanoTime() - start);
 	}
 
 	private static Stat<Identifier> jumpStat() {

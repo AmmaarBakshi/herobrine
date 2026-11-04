@@ -27,11 +27,12 @@ import io.github.ammaarbakshi.herobrine.haunt.HauntState;
 import io.github.ammaarbakshi.herobrine.haunt.WorldEditLog;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvent;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
-import io.github.ammaarbakshi.herobrine.mirror.PlayerBehaviorRecorder;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerProfile;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileAnalyzer;
 import io.github.ammaarbakshi.herobrine.mirror.ProfilePresets;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileView;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
+import io.github.ammaarbakshi.herobrine.perf.PerfMeter;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 
@@ -85,7 +86,7 @@ public final class HerobrineCommand {
 		root.then(Commands.literal("perf")
 				.executes(HerobrineCommand::perf)
 				.then(Commands.literal("reset").executes(ctx -> {
-					PlayerBehaviorRecorder.resetCost();
+					Perf.resetAll();
 					return perf(ctx);
 				})));
 
@@ -244,11 +245,17 @@ public final class HerobrineCommand {
 	}
 
 	private static int perf(CommandContext<CommandSourceStack> ctx) {
-		PlayerBehaviorRecorder.Cost cost = PlayerBehaviorRecorder.cost();
-		ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.perf",
-				String.format(Locale.ROOT, "%.2f", cost.averageMicrosPerPlayerTick()),
-				String.format(Locale.ROOT, "%.1f", cost.worstMicros()), cost.playerTicks()), false);
-		return (int) Math.round(cost.averageMicrosPerPlayerTick());
+		sendPerf(ctx, "recorder", Perf.RECORDER);
+		sendPerf(ctx, "world", Perf.WORLD);
+		sendPerf(ctx, "mirror", Perf.MIRROR_AI);
+		return (int) Math.round(Perf.RECORDER.snapshot().averageMicros());
+	}
+
+	private static void sendPerf(CommandContext<CommandSourceStack> ctx, String key, PerfMeter meter) {
+		PerfMeter.Snapshot snapshot = meter.snapshot();
+		ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.perf." + key,
+				String.format(Locale.ROOT, "%.2f", snapshot.averageMicros()),
+				String.format(Locale.ROOT, "%.1f", snapshot.worstMicros()), snapshot.units()), false);
 	}
 
 	private static int reload(CommandContext<CommandSourceStack> ctx) {

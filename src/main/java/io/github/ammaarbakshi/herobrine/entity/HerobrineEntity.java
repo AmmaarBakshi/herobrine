@@ -34,6 +34,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.entity.ai.AntiPillarGoal;
 import io.github.ammaarbakshi.herobrine.entity.ai.HerobrineMoveControl;
 import io.github.ammaarbakshi.herobrine.entity.ai.MirrorBowGoal;
 import io.github.ammaarbakshi.herobrine.entity.ai.MirrorBrain;
@@ -137,6 +138,7 @@ public final class HerobrineEntity extends Monster {
 		goalSelector.addGoal(2, new MirrorHealGoal(this));
 		goalSelector.addGoal(2, new MirrorRetreatGoal(this));
 		goalSelector.addGoal(2, new PillarGoal(this));
+		goalSelector.addGoal(2, new AntiPillarGoal(this));
 		goalSelector.addGoal(3, new MirrorBowGoal(this));
 		goalSelector.addGoal(3, new MirrorMeleeGoal(this));
 		goalSelector.addGoal(4, new StrafeGoal(this));

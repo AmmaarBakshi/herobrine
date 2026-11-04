@@ -28,12 +28,33 @@ Install it on the **server and every client**; the mod adds its own entity and s
 
 All commands need op level 2.
 
-| Command | Does | Available |
-|---|---|---|
-| `/herobrine status [player]` | Haunt level, phase, profile confidence, encounter count | ✅ (placeholder values) |
-| `/herobrine reload` | Reload `config/herobrine.json` | ✅ |
+| Command | Does |
+|---|---|
+| `/herobrine status [player]` | Haunt level, phase, profile confidence, encounters, sightings |
+| `/herobrine haunt set <player> <0-100>` | Set a player's haunt level |
+| `/herobrine sighting <player> [stalk\|jumpscare]` | Force a sighting |
+| `/herobrine sign <event> [player]` | Force a haunt event (tab-completes the ids below) |
+| `/herobrine undo [n]` | Revert the last `n` world-editing events (default 1) |
+| `/herobrine reload` | Reload `config/herobrine.json` |
 
-More debug commands (sightings, signs, profiles, undo) arrive with their milestones.
+Profile and confrontation commands arrive with their milestones.
+
+### Haunt events
+
+| Id | What happens | Needs `griefing` |
+|---|---|---|
+| `torch_thief` | Up to 3 torches vanish from a cave you were in | `TORCHES_ONLY` |
+| `tunnel` | A perfectly straight 2x2 tunnel near where you mine | `NATURAL_ONLY` |
+| `sand_pyramid` | A small sand pyramid in a desert or shallow ocean, 40-100 blocks away | `NATURAL_ONLY` |
+| `leafless_tree` | One natural tree loses every leaf | `NATURAL_ONLY` |
+| `sign` | A sign in your path; some messages quote your own habits | `NATURAL_ONLY` |
+| `ambient_sound` | Footsteps behind you, a door, mining inside the walls (only you hear them) | none |
+| `ghost_replay` | He appears ~30 blocks away and re-enacts your last 10 seconds | none |
+| `fake_chat` | "Herobrine joined the game", at most once a day | none |
+
+World edits never happen in anyone's view, never within `protectedRadius` of a bed or
+any block entity (chests, furnaces, signs...), only touch natural blocks, and are all
+logged so `/herobrine undo` can put them back (the log survives restarts).
 
 ## Configuration
 
@@ -69,6 +90,7 @@ cd herobrine
 ./gradlew runClient        # dev client
 ./gradlew runServer        # dev dedicated server (run/server)
 ./gradlew runClientGameTest  # boots the real game and runs in-game tests
+./gradlew runClientGameTest -Pgametest=Haunt  # just one (Command, Entity, Sighting, Haunt)
 ```
 
 You need a JDK 25. If none is installed, Gradle downloads one automatically
@@ -86,9 +108,9 @@ You need a JDK 25. If none is installed, Gradle downloads one automatically
 ## Roadmap
 
 - [x] **M1** Project setup, registries, `/herobrine status`
-- [ ] **M2** Herobrine entity, original skin, glowing eyes, spawn egg
-- [ ] **M3** Sightings and look detection
-- [ ] **M4** Haunt director, sign events, world-edit safety and undo
+- [x] **M2** Herobrine entity, original skin, glowing eyes, spawn egg
+- [x] **M3** Sightings and look detection
+- [x] **M4** Haunt director, sign events, world-edit safety and undo
 - [ ] **M5** Combat behaviour recorder, player profile, persistence
 - [ ] **M6** Mirror AI driven by the profile
 - [ ] **M7** Confrontation, boss fight, Mirror Shard, advancement

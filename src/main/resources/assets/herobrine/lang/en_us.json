@@ -19,6 +19,8 @@
   "subtitles.herobrine.drone": "Low hum",
   "subtitles.herobrine.whisper": "Someone whispers",
   "subtitles.herobrine.heartbeat": "Heartbeat",
+  "subtitles.herobrine.arrival": "Something arrives",
+  "subtitles.herobrine.shatter": "Mirror shatters",
   "herobrine.command.sign.success": "Forced %s for %s",
   "herobrine.command.sign.nothing": "%s found nowhere safe and unseen near %s",
   "herobrine.command.sign.disabled": "%s is disabled by the config (enabled / griefing)",

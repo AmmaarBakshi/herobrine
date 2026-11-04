@@ -14,5 +14,13 @@
   "heartbeat": {
     "subtitle": "subtitles.herobrine.heartbeat",
     "sounds": ["herobrine:heartbeat"]
+  },
+  "arrival": {
+    "subtitle": "subtitles.herobrine.arrival",
+    "sounds": ["herobrine:arrival"]
+  },
+  "shatter": {
+    "subtitle": "subtitles.herobrine.shatter",
+    "sounds": ["herobrine:shatter"]
   }
 }

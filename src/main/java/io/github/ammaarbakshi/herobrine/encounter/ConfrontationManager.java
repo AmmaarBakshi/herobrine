@@ -217,6 +217,8 @@ public final class ConfrontationManager {
 		ModNetworking.sendCue(player, ConfrontationCuePayload.Cue.SILENCE);
 		player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, DARKNESS_TICKS, 0, false, false));
 		PrivateSounds.play(player, ModSounds.DRONE, SoundSource.HOSTILE, player.position(), 1.0F, 0.7F);
+		// A 1.5 s swell that cuts off dead on the lightning (tick 30).
+		PrivateSounds.play(player, ModSounds.ARRIVAL, SoundSource.HOSTILE, Vec3.atBottomCenterOf(arrival), 1.0F, 1.0F);
 		HerobrineMod.LOGGER.info("Confrontation with {} ({})", player.getName().getString(), trigger);
 		return StartResult.STARTED;
 	}
@@ -470,6 +472,7 @@ public final class ConfrontationManager {
 		if (player == null) {
 			return;
 		}
+		level.playSound(null, boss.getX(), boss.getY(), boss.getZ(), ModSounds.SHATTER, SoundSource.HOSTILE, 1.0F, 1.0F);
 		ItemEntity shard = boss.spawnAtLocation(level, new ItemStack(ModItems.MIRROR_SHARD));
 		if (shard != null) {
 			shard.setUnlimitedLifetime();

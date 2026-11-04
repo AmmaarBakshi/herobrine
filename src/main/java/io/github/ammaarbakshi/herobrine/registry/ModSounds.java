@@ -14,6 +14,10 @@ public final class ModSounds {
 	public static final Holder.Reference<SoundEvent> DRONE = register("drone");
 	public static final Holder.Reference<SoundEvent> WHISPER = register("whisper");
 	public static final Holder.Reference<SoundEvent> HEARTBEAT = register("heartbeat");
+	/** The swell and cut as the Mirror arrives. */
+	public static final Holder.Reference<SoundEvent> ARRIVAL = register("arrival");
+	/** Glass breaking: the Mirror falls. */
+	public static final Holder.Reference<SoundEvent> SHATTER = register("shatter");
 
 	private ModSounds() {
 	}

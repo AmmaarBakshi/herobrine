@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "herobrine-gametest",
+  "version": "1.0.0",
+  "name": "Herobrine: The Mirror - game tests",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "io.github.ammaarbakshi.herobrine.gametest.CommandClientGameTest"
+    ]
+  },
+  "depends": {
+    "herobrine": "*",
+    "fabric-api": "*"
+  }
+}

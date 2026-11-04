@@ -36,6 +36,18 @@ loom {
 	}
 }
 
+fabricApi {
+	// In-game tests live in src/gametest (a separate test mod) and boot the real game:
+	// ./gradlew runClientGameTest creates a world, drives the client and saves screenshots.
+	configureTests {
+		createSourceSet = true
+		modId = 'herobrine-gametest'
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"

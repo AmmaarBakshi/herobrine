@@ -15,6 +15,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import io.github.ammaarbakshi.herobrine.HerobrineMod;
 import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
+import io.github.ammaarbakshi.herobrine.mirror.CounterStrategy;
 import io.github.ammaarbakshi.herobrine.mirror.TacticPlanner;
 import io.github.ammaarbakshi.herobrine.mirror.TacticPlanner.Tactic;
 import io.github.ammaarbakshi.herobrine.mirror.TraitId;
@@ -34,6 +35,8 @@ public final class MirrorMeleeGoal extends MirrorGoal {
 
 	private int cooldown;
 	private int critTimer;
+	/** Ticks the axe has been out with no shield to break. */
+	private int axeIdle;
 
 	public MirrorMeleeGoal(HerobrineEntity herobrine) {
 		super(herobrine, EnumSet.of(Flag.LOOK));
@@ -72,15 +75,45 @@ public final class MirrorMeleeGoal extends MirrorGoal {
 			}
 			return;
 		}
+		tickShieldBreaker(brain, target);
 		if (cooldown > 0 || !inReach || isBlocking()) {
 			return;
 		}
-		if (herobrine.onGround() && herobrine.getRandom().nextDouble() < brain.value(TraitId.CRIT_RATE)) {
+		if (brain.hasAxe() && target.isBlocking() && !brain.holdingAxe() && brain.counter(CounterStrategy.SHIELD_BREAKER, rng())) {
+			brain.holdAxe();
+			brain.countered(CounterStrategy.SHIELD_BREAKER);
+		}
+		boolean burst = healBurst(brain, target);
+		if (herobrine.onGround() && (burst || herobrine.getRandom().nextDouble() < brain.value(TraitId.CRIT_RATE))) {
 			herobrine.getJumpControl().jump();
 			critTimer = CRIT_WINDOW;
 			return;
 		}
 		attack(level, brain, target, false);
+	}
+
+	/** Puts the axe away again once there's no raised shield to break. */
+	private void tickShieldBreaker(MirrorBrain brain, ServerPlayer target) {
+		if (!brain.holdingAxe()) {
+			axeIdle = 0;
+			return;
+		}
+		axeIdle = target.isBlocking() ? 0 : axeIdle + 1;
+		if (axeIdle > 30) {
+			brain.holdWeapon();
+			axeIdle = 0;
+		}
+	}
+
+	/** Heal burst: they're just above the HP where they always heal, so hit as hard as possible now. */
+	private boolean healBurst(MirrorBrain brain, ServerPlayer target) {
+		if (!brain.plan().has(CounterStrategy.HEAL_BURST)
+				|| !CounterStrategy.inHealBurstWindow(target.getHealth() / target.getMaxHealth(), brain.value(TraitId.HEAL_THRESHOLD))
+				|| !brain.counter(CounterStrategy.HEAL_BURST, rng())) {
+			return false;
+		}
+		brain.countered(CounterStrategy.HEAL_BURST);
+		return true;
 	}
 
 	private void attack(ServerLevel level, MirrorBrain brain, ServerPlayer target, boolean crit) {

@@ -35,7 +35,8 @@ public final class MirrorShieldGoal extends MirrorGoal {
 	@Override
 	public boolean canUse() {
 		MirrorBrain brain = brain();
-		return brain != null && brain.hasShield() && !brain.pillaring() && active(Tactic.MELEE, Tactic.RANGED);
+		return brain != null && brain.hasShield() && !brain.pillaring() && !brain.shieldDisabled(now())
+				&& active(Tactic.MELEE, Tactic.RANGED);
 	}
 
 	@Override

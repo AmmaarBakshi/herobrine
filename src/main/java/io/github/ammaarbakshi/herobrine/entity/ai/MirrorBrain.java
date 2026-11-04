@@ -1,13 +1,18 @@
 package io.github.ammaarbakshi.herobrine.entity.ai;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.random.RandomGenerator;
 
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
 import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
 import io.github.ammaarbakshi.herobrine.mirror.CounterPlan;
+import io.github.ammaarbakshi.herobrine.mirror.CounterStrategy;
 import io.github.ammaarbakshi.herobrine.mirror.GearSnapshot;
 import io.github.ammaarbakshi.herobrine.mirror.HealItem;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerBehaviorRecorder;
@@ -55,6 +61,8 @@ public final class MirrorBrain {
 
 	private final ItemStack weapon;
 	private final @Nullable ItemStack bow;
+	/** Only when countering shields: the vanilla way to disable one. */
+	private final @Nullable ItemStack axe;
 	private final ItemStack healItem;
 	private final HealItem healKind;
 	private final BlockState pillarBlock;
@@ -67,6 +75,8 @@ public final class MirrorBrain {
 	private boolean pillaring;
 	private int healsUsed;
 	private final List<BlockPos> placedBlocks = new ArrayList<>();
+	private long shieldDisabledUntil;
+	private final Map<CounterStrategy, Integer> counterUses = new EnumMap<>(CounterStrategy.class);
 
 	// Counted for tests and the end-of-fight summary.
 	public int swings;
@@ -86,7 +96,9 @@ public final class MirrorBrain {
 				value(TraitId.PEARL_ESCAPE_RATE));
 		WeaponType type = profile.weaponPref().known(minSamples) ? profile.topWeapon() : WeaponType.SWORD;
 		this.weapon = weaponFor(type, profile.gear());
-		this.bow = habits.rangedRatio() > 0.05 ? new ItemStack(Items.BOW) : null;
+		// Anti-pillar brings a bow for players out of reach, whatever their own habits.
+		this.bow = habits.rangedRatio() > 0.05 || plan.has(CounterStrategy.ANTI_PILLAR) ? new ItemStack(Items.BOW) : null;
+		this.axe = plan.has(CounterStrategy.SHIELD_BREAKER) && typeOf(weapon) != WeaponType.AXE ? new ItemStack(Items.IRON_AXE) : null;
 		this.healKind = profile.healItemPref().known(rareSamples) ? profile.topHealItem() : HealItem.FOOD;
 		this.healItem = healStack(healKind);
 		this.pillarBlock = pillarBlock(profile);
@@ -114,6 +126,29 @@ public final class MirrorBrain {
 
 	public CounterPlan plan() {
 		return plan;
+	}
+
+	// --- Counters -----------------------------------------------------------------------------
+
+	/**
+	 * Whether to counter instead of mirror at this decision point: only for active counters,
+	 * and then with the plan's counter weight (more likely every time he comes back).
+	 */
+	public boolean counter(CounterStrategy strategy, RandomGenerator random) {
+		return plan.has(strategy) && random.nextDouble() < plan.counterWeight();
+	}
+
+	/** Records that a counter was used; the first time in a fight he says so. */
+	public void countered(CounterStrategy strategy) {
+		int uses = counterUses.merge(strategy, 1, Integer::sum);
+		ServerPlayer player = target();
+		if (uses == 1 && player != null) {
+			player.sendOverlayMessage(Component.translatable(strategy.translationKey()).withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC));
+		}
+	}
+
+	public int counterUses(CounterStrategy strategy) {
+		return counterUses.getOrDefault(strategy, 0);
 	}
 
 	// --- Fight state --------------------------------------------------------------------------
@@ -217,6 +252,29 @@ public final class MirrorBrain {
 
 	public boolean hasShield() {
 		return herobrine.getOffhandItem().is(Items.SHIELD);
+	}
+
+	/** An axe hit on his shield disables it, exactly as it would a player's. */
+	public void disableShield(long now, int ticks) {
+		shieldDisabledUntil = Math.max(shieldDisabledUntil, now + ticks);
+	}
+
+	boolean shieldDisabled(long now) {
+		return now < shieldDisabledUntil;
+	}
+
+	public boolean hasAxe() {
+		return axe != null;
+	}
+
+	public void holdAxe() {
+		if (axe != null) {
+			hold(axe);
+		}
+	}
+
+	public boolean holdingAxe() {
+		return axe != null && herobrine.getMainHandItem().is(axe.getItem());
 	}
 
 	/** What he is swinging right now (counters may have swapped it). */

@@ -181,5 +181,11 @@
   "herobrine.taunt.weapon_fist": "No weapon? Like always.",
   "herobrine.taunt.generic_1": "I know how you fight.",
   "herobrine.taunt.generic_2": "I am what you taught me.",
-  "herobrine.taunt.generic_3": "Keep going. I'm learning."
+  "herobrine.taunt.generic_3": "Keep going. I'm learning.",
+  "herobrine.counter.shield_breaker": "That shield won't save you.",
+  "herobrine.counter.strafe_lead": "I know where you're going.",
+  "herobrine.counter.anti_pillar": "Come down.",
+  "herobrine.counter.gap_closer": "You can't outrun me.",
+  "herobrine.counter.heal_burst": "Before you can heal.",
+  "herobrine.counter.pearl_follow": "I saw where it landed."
 }

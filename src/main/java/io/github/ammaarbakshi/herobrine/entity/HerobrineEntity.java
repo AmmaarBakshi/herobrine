@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
@@ -19,11 +20,14 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -293,6 +297,22 @@ public final class HerobrineEntity extends Monster {
 			vanish();
 		}
 		return false;
+	}
+
+	@Override
+	protected void blockUsingItem(ServerLevel level, LivingEntity attacker, DamageSource source, float damage, boolean fullyBlocked) {
+		super.blockUsingItem(level, attacker, source, damage, fullyBlocked);
+		// Same rule as for players: an axe hit on a raised shield knocks it down for a while.
+		ItemStack blocking = getItemBlockingWith();
+		BlocksAttacks blocksAttacks = blocking != null ? blocking.get(DataComponents.BLOCKS_ATTACKS) : null;
+		float seconds = attacker.getSecondsToDisableBlocking();
+		if (seconds > 0.0F && blocksAttacks != null) {
+			blocksAttacks.disable(level, this, seconds, blocking);
+			MirrorBrain mirror = brain();
+			if (mirror != null) {
+				mirror.disableShield(level.getGameTime(), Math.round(seconds * 20.0F));
+			}
+		}
 	}
 
 	@Override

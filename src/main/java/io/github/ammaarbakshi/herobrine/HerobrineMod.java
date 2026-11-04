@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 import io.github.ammaarbakshi.herobrine.command.HerobrineCommand;
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
+import io.github.ammaarbakshi.herobrine.encounter.ShrineDetector;
 import io.github.ammaarbakshi.herobrine.haunt.HauntDirector;
 import io.github.ammaarbakshi.herobrine.haunt.HauntScheduler;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
@@ -40,6 +42,8 @@ public final class HerobrineMod implements ModInitializer {
 		HauntEvents.init();
 		HauntDirector.init();
 		PlayerBehaviorRecorder.init();
+		ConfrontationManager.init();
+		ShrineDetector.init();
 		CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
 				HerobrineCommand.register(dispatcher));
 		LOGGER.info("He is watching.");

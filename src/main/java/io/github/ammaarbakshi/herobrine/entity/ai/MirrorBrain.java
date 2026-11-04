@@ -150,6 +150,11 @@ public final class MirrorBrain {
 		return healsUsed;
 	}
 
+	/** Carries the heal budget over when he is replaced mid-fight. */
+	public void setHealsUsed(int healsUsed) {
+		this.healsUsed = Math.max(0, healsUsed);
+	}
+
 	void onHealed(long now) {
 		healsUsed++;
 		healCooldownUntil = now + HEAL_COOLDOWN;
@@ -250,13 +255,18 @@ public final class MirrorBrain {
 
 	/** Takes his pillar down again so the fight leaves no trace. */
 	public void cleanUp(ServerLevel level) {
-		for (int i = placedBlocks.size() - 1; i >= 0; i--) {
-			BlockPos pos = placedBlocks.get(i);
-			if (level.isLoaded(pos) && level.getBlockState(pos) == pillarBlock) {
+		removeBlocks(level, placedBlocks, pillarBlock);
+		placedBlocks.clear();
+	}
+
+	/** Removes {@code blocks} (newest first), but only where {@code state} still stands. */
+	public static void removeBlocks(ServerLevel level, List<BlockPos> blocks, BlockState state) {
+		for (int i = blocks.size() - 1; i >= 0; i--) {
+			BlockPos pos = blocks.get(i);
+			if (level.isLoaded(pos) && level.getBlockState(pos) == state) {
 				level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
 			}
 		}
-		placedBlocks.clear();
 	}
 
 	// --- Item helpers -------------------------------------------------------------------------

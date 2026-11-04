@@ -399,7 +399,8 @@ public final class PlayerBehaviorRecorder {
 
 	private static void sendDebug(ServerPlayer player, PlayerProfile profile, HerobrineConfig config, boolean inCombat) {
 		if (ServerPlayNetworking.canSend(player, DebugProfilePayload.TYPE)) {
-			ServerPlayNetworking.send(player, new DebugProfilePayload(ProfileView.of(profile, config.minTraitSamples, 0, inCombat)));
+			ServerPlayNetworking.send(player, new DebugProfilePayload(ProfileView.of(profile, config.minTraitSamples,
+					ModAttachments.encounters(player).total(), inCombat)));
 		}
 	}
 

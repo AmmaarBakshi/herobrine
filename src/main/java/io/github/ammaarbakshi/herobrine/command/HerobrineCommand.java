@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
 import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
+import io.github.ammaarbakshi.herobrine.encounter.EncounterHistory;
 import io.github.ammaarbakshi.herobrine.haunt.HauntDirector;
 import io.github.ammaarbakshi.herobrine.haunt.HauntLevel;
 import io.github.ammaarbakshi.herobrine.haunt.HauntPhase;
@@ -26,7 +27,6 @@ import io.github.ammaarbakshi.herobrine.haunt.HauntState;
 import io.github.ammaarbakshi.herobrine.haunt.WorldEditLog;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvent;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
-import io.github.ammaarbakshi.herobrine.mirror.CounterPlan;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerBehaviorRecorder;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerProfile;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileAnalyzer;
@@ -104,7 +104,7 @@ public final class HerobrineCommand {
 		HauntState haunt = ModAttachments.haunt(player);
 		HauntPhase phase = HauntLevel.phase(player);
 		double confidence = ProfileAnalyzer.confidence(ModAttachments.profile(player), config.minTraitSamples);
-		int encounters = 0;
+		EncounterHistory history = ModAttachments.encounters(player);
 
 		CommandSourceStack source = ctx.getSource();
 		source.sendSuccess(() -> Component.translatable("herobrine.command.status.header", player.getDisplayName())
@@ -113,7 +113,8 @@ public final class HerobrineCommand {
 				haunt.levelInt(), HauntPhase.MAX_LEVEL, Component.translatable(phase.translationKey())), false);
 		source.sendSuccess(() -> Component.translatable("herobrine.command.status.confidence",
 				Math.round(confidence * 100)), false);
-		source.sendSuccess(() -> Component.translatable("herobrine.command.status.encounters", encounters), false);
+		source.sendSuccess(() -> Component.translatable("herobrine.command.status.encounters",
+				history.total(), history.wins(), history.losses()), false);
 		source.sendSuccess(() -> Component.translatable("herobrine.command.status.sightings", haunt.sightings()), false);
 		return haunt.levelInt();
 	}
@@ -232,8 +233,10 @@ public final class HerobrineCommand {
 
 	private static int summon(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
-		if (ConfrontationManager.summon(player, CounterPlan.NONE) == null) {
-			ctx.getSource().sendFailure(Component.translatable("herobrine.command.summon.failed", player.getDisplayName()));
+		ConfrontationManager.StartResult result = ConfrontationManager.begin(player, ConfrontationManager.Trigger.COMMAND);
+		if (result != ConfrontationManager.StartResult.STARTED) {
+			ctx.getSource().sendFailure(Component.translatable("herobrine.command.summon." + result.name().toLowerCase(Locale.ROOT),
+					player.getDisplayName()));
 			return 0;
 		}
 		ctx.getSource().sendSuccess(() -> Component.translatable("herobrine.command.summon.success", player.getDisplayName()), true);

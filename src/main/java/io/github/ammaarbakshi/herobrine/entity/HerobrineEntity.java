@@ -9,9 +9,13 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -21,6 +25,7 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -94,6 +99,9 @@ public final class HerobrineEntity extends Monster {
 	private @Nullable MirrorBrain brain;
 	private int savedHealsUsed;
 	private List<BlockPos> savedPlacedBlocks = List.of();
+	private @Nullable BlockState savedPillarBlock;
+	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(this.random),
+			Component.translatable("entity.herobrine.herobrine"), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
 
 	public HerobrineEntity(EntityType<? extends HerobrineEntity> type, Level level) {
 		super(type, level);
@@ -103,6 +111,10 @@ public final class HerobrineEntity extends Monster {
 			setDropChance(slot, 0.0F);
 		}
 		setPersistenceRequired();
+	}
+
+	{
+		bossEvent.setDarkenScreen(true);
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -209,10 +221,37 @@ public final class HerobrineEntity extends Monster {
 	}
 
 	@Override
+	protected void customServerAiStep(ServerLevel level) {
+		super.customServerAiStep(level);
+		if (mode == Mode.BOSS) {
+			bossEvent.setProgress(getHealth() / getMaxHealth());
+		}
+	}
+
+	@Override
+	public void startSeenByPlayer(ServerPlayer player) {
+		super.startSeenByPlayer(player);
+		if (mode == Mode.BOSS) {
+			bossEvent.addPlayer(player);
+		}
+	}
+
+	@Override
+	public void stopSeenByPlayer(ServerPlayer player) {
+		super.stopSeenByPlayer(player);
+		bossEvent.removePlayer(player);
+	}
+
+	@Override
 	public void remove(RemovalReason reason) {
-		if (reason.shouldDestroy() && brain != null && level() instanceof ServerLevel serverLevel) {
+		if (reason.shouldDestroy() && level() instanceof ServerLevel serverLevel) {
 			// The fight is over (or he was removed): take the pillar back down.
-			brain.cleanUp(serverLevel);
+			if (brain != null) {
+				brain.cleanUp(serverLevel);
+			} else if (savedPillarBlock != null) {
+				MirrorBrain.removeBlocks(serverLevel, savedPlacedBlocks, savedPillarBlock);
+			}
+			bossEvent.removeAllPlayers();
 		}
 		super.remove(reason);
 	}
@@ -271,8 +310,10 @@ public final class HerobrineEntity extends Monster {
 		if (mode == Mode.BOSS) {
 			output.putInt("BossHealsUsed", brain != null ? brain.healsUsed() : savedHealsUsed);
 			List<BlockPos> placed = brain != null ? brain.placedBlocks() : savedPlacedBlocks;
-			if (!placed.isEmpty()) {
+			BlockState pillar = brain != null ? brain.pillarBlock() : savedPillarBlock;
+			if (!placed.isEmpty() && pillar != null) {
 				output.store("PillarBlocks", BlockPos.CODEC.listOf(), placed);
+				output.store("PillarBlock", BlockState.CODEC, pillar);
 			}
 		}
 	}
@@ -284,6 +325,7 @@ public final class HerobrineEntity extends Monster {
 		watchedPlayerId = input.read("WatchedPlayer", UUIDUtil.CODEC).orElse(null);
 		savedHealsUsed = input.getIntOr("BossHealsUsed", 0);
 		savedPlacedBlocks = new ArrayList<>(input.read("PillarBlocks", BlockPos.CODEC.listOf()).orElse(List.of()));
+		savedPillarBlock = input.read("PillarBlock", BlockState.CODEC).orElse(null);
 		brain = null;
 	}
 }

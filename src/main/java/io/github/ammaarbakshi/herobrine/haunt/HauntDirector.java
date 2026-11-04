@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
+import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
 import io.github.ammaarbakshi.herobrine.haunt.events.EventContext;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvent;
 import io.github.ammaarbakshi.herobrine.haunt.events.HauntEvents;
@@ -104,6 +105,7 @@ public final class HauntDirector {
 	private static void process(MinecraftServer server, ServerPlayer player, PlayerTrail trail, HerobrineConfig config) {
 		HauntState haunt = ModAttachments.haunt(player);
 		applyGains(server, player, haunt);
+		ConfrontationManager.tryNatural(player, haunt, config);
 
 		if (trail.nextEventTick < 0) {
 			trail.nextEventTick = tick + cooldown(player.getRandom(), config);

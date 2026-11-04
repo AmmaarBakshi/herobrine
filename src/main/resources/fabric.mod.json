@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "herobrine",
+  "version": "${version}",
+  "name": "Herobrine: The Mirror",
+  "description": "Herobrine haunts you, studies how you fight, then returns as a doppelganger that fights exactly like you - and learns to counter you.",
+  "authors": [
+    "Ammaar Bakshi"
+  ],
+  "contact": {
+    "homepage": "https://github.com/AmmaarBakshi/herobrine",
+    "sources": "https://github.com/AmmaarBakshi/herobrine",
+    "issues": "https://github.com/AmmaarBakshi/herobrine/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/herobrine/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.github.ammaarbakshi.herobrine.HerobrineMod"
+    ],
+    "client": [
+      "io.github.ammaarbakshi.herobrine.client.HerobrineClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

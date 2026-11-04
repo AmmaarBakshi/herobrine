@@ -128,8 +128,7 @@ public final class ConfrontationClientGameTest implements FabricClientGameTest {
 	private static void winningDropsTheShard(ClientGameTestContext context, TestSingleplayerContext world) {
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = GameTests.player(server);
-			HerobrineEntity boss = ConfrontationManager.activeBoss(player);
-			boss.hurtServer(player.level(), player.damageSources().playerAttack(player), 1000.0F);
+			GameTests.killBoss(player, ConfrontationManager.activeBoss(player));
 		});
 		context.waitTicks(5);
 		world.getServer().runOnServer(server -> {
@@ -213,7 +212,7 @@ public final class ConfrontationClientGameTest implements FabricClientGameTest {
 				"natural confrontation never arrived");
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = GameTests.player(server);
-			ConfrontationManager.activeBoss(player).hurtServer(player.level(), player.damageSources().playerAttack(player), 1000.0F);
+			GameTests.killBoss(player, ConfrontationManager.activeBoss(player));
 		});
 		context.waitTicks(30);
 		world.getServer().runCommand("kill @e[type=minecraft:item]");

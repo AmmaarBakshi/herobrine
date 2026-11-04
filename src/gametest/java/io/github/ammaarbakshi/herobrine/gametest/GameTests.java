@@ -56,6 +56,15 @@ final class GameTests {
 		return player(server).level().getEntities(ModEntities.HEROBRINE, e -> true);
 	}
 
+	/**
+	 * The player kills him with one blow. His shield goes down first: a raised shield blocks
+	 * the whole hit, however big, and a shield user's mirror raises his often.
+	 */
+	static void killBoss(ServerPlayer player, HerobrineEntity boss) {
+		boss.stopUsingItem();
+		boss.hurtServer(player.level(), player.damageSources().playerAttack(player), 1000.0F);
+	}
+
 	/** Angle in degrees between where his head points and the direction to {@code point}. */
 	static double headAngleTo(HerobrineEntity herobrine, Vec3 point) {
 		double yaw = Math.toRadians(herobrine.getYHeadRot());

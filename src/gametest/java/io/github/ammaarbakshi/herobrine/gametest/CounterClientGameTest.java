@@ -209,8 +209,7 @@ public final class CounterClientGameTest implements FabricClientGameTest {
 
 	private static void killBoss(ClientGameTestContext context, TestSingleplayerContext world) {
 		world.getServer().runOnServer(server -> {
-			ServerPlayer player = GameTests.player(server);
-			boss(server).hurtServer(player.level(), player.damageSources().playerAttack(player), 1000.0F);
+			GameTests.killBoss(GameTests.player(server), boss(server));
 		});
 		context.waitTicks(30);
 		world.getServer().runCommand("kill @e[type=minecraft:item]");

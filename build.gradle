@@ -26,6 +26,11 @@ loom {
 	}
 
 	runs {
+		// Explicit heap cap: without it the JVM sizes itself from total RAM and can fail to
+		// commit memory on machines with a small page file.
+		configureEach {
+			vmArgs '-Xms512M', '-Xmx2G'
+		}
 		client {
 			programArgs '--username', 'Dev'
 		}

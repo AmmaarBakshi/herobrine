@@ -9,7 +9,8 @@
     "fabric-client-gametest": [
       "io.github.ammaarbakshi.herobrine.gametest.CommandClientGameTest",
       "io.github.ammaarbakshi.herobrine.gametest.EntityClientGameTest",
-      "io.github.ammaarbakshi.herobrine.gametest.SightingClientGameTest"
+      "io.github.ammaarbakshi.herobrine.gametest.SightingClientGameTest",
+      "io.github.ammaarbakshi.herobrine.gametest.HauntClientGameTest"
     ]
   },
   "depends": {

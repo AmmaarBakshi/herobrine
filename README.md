@@ -30,7 +30,8 @@ and are sometimes hours long. He is likelier when you are alone, at night, and n
 memorial; never while you fight, and never during a boss fight unless `appearDuringBossFights` is on.
 
 When he does appear, he picks a place with character: beside a tree trunk, on the far bank of a
-river, on a ridge above you, near your home, deep in a dark cave. And one of four ways
+river, on a ridge above you, in an old ruin, at the edge of a village, near your home, deep in a
+dark cave. And one of four ways
 (`appearanceWeights`):
 
 | Way | What happens |

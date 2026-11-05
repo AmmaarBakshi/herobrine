@@ -2,15 +2,21 @@ package io.github.ammaarbakshi.herobrine.behaviour;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Map;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.StructureTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.phys.Vec3;
 
 import io.github.ammaarbakshi.herobrine.memory.Place;
@@ -22,8 +28,8 @@ import io.github.ammaarbakshi.herobrine.sighting.SpawnFinder;
 /**
  * Where he chooses to stand. A bounded random search around the player (never loads chunks),
  * scored so that he tends to pick places with character: beside a tree trunk, on the far bank of
- * a river, on a ridge, near the player's home, deep in a dark cave. Each spot is tagged with that
- * {@code place:<flavour>} so a line can mention it.
+ * a river, on a ridge, in an old ruin or at the edge of a village, near the player's home, deep in
+ * a dark cave. Each spot is tagged with that {@code place:<flavour>} so a line can mention it.
  */
 final class AppearanceSpots {
 	/** A place to stand; {@code fadeIn} if it is at the edge of view and he should materialise. */
@@ -83,6 +89,11 @@ final class AppearanceSpots {
 				score += 5;
 				flavour = "river";
 			}
+			String structure = structureAt(level, feet);
+			if (structure != null) {
+				score += 4;
+				flavour = structure;
+			}
 			if (homeNear && home.distanceSqr(dimension, feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5) < 24 * 24) {
 				score += 3;
 				flavour = "home";
@@ -131,6 +142,25 @@ final class AppearanceSpots {
 		int x = Mth.floor(player.getX() - Math.sin(angle) * distance);
 		int z = Mth.floor(player.getZ() + Math.cos(angle) * distance);
 		return SpawnFinder.findStandable(player.level(), x, z, player.getBlockY(), range, surface);
+	}
+
+	/**
+	 * {@code village} or {@code ruin} if a structure's pieces reach into this spot's chunk (one
+	 * lookup in the chunk's structure references), otherwise null. Ruins are any other structure:
+	 * mineshafts, ruined portals, outposts, the BERSERK memorial...
+	 */
+	private static @Nullable String structureAt(ServerLevel level, BlockPos feet) {
+		Map<Structure, ?> references = level.structureManager().getAllStructuresAt(feet);
+		if (references.isEmpty()) {
+			return null;
+		}
+		Registry<Structure> registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
+		for (Structure structure : references.keySet()) {
+			if (registry.wrapAsHolder(structure).is(StructureTags.VILLAGE)) {
+				return "village";
+			}
+		}
+		return "ruin";
 	}
 
 	/** A log right beside him at body height: he stands at a trunk, half in its cover. */

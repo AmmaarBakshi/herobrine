@@ -132,7 +132,7 @@
       "text": "You turned around. Most people don't.",
       "note": "Impressed, slightly. Close and calm.",
       "weight": 20, "cooldown": 86400,
-      "when": {"tags": ["mode:behind"]}
+      "when": {"tags": ["mode:stalking"]}
     },
     {
       "id": "random.long_absence",

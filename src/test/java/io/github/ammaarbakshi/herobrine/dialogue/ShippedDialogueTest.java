@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import com.google.gson.JsonElement;
@@ -21,6 +22,7 @@ import com.google.gson.JsonParser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
 import io.github.ammaarbakshi.herobrine.memory.BossKind;
 import io.github.ammaarbakshi.herobrine.memory.Counters;
 import io.github.ammaarbakshi.herobrine.memory.GearTier;
@@ -31,11 +33,20 @@ import io.github.ammaarbakshi.herobrine.memory.Milestone;
  * instead of silently making a line unreachable.
  */
 class ShippedDialogueTest {
-	/** Tags the code can produce (see ObserverContext and the controllers). Prefixed ones end in ':'. */
-	private static final Set<String> TAG_PREFIXES = Set.of("dimension:", "time:", "weather:", "haunt:", "mode:", "place:",
-			"outcome:", "phase:", "cause:", "killer:", "depth:", "near:");
-	private static final Set<String> PLAIN_TAGS = Set.of("outdoors", "underground", "indoors", "alone", "health:low", "creative",
-			"visible", "ignored", "first_meeting", "long_absence", "in_boss_fight");
+	/** Tags whose values come from game data (damage types, entity ids): only the prefix is checked. */
+	private static final Set<String> OPEN_PREFIXES = Set.of("cause:", "killer:");
+	/** Every other tag the code can produce (see ObserverContext and the controllers). */
+	private static final Set<String> KNOWN_TAGS = Set.of(
+			"outdoors", "underground", "indoors", "alone", "health:low", "creative", "visible", "ignored",
+			"first_meeting", "long_absence", "in_boss_fight",
+			"dimension:overworld", "dimension:the_nether", "dimension:the_end", "time:day", "time:night",
+			"weather:clear", "weather:rain", "weather:thunder",
+			"haunt:signs", "haunt:sightings", "haunt:stalking", "haunt:confrontation",
+			"near:home", "near:village", "near:berserk",
+			"place:tree", "place:river", "place:ridge", "place:home", "place:cave", "place:open", "place:dark",
+			"place:distant", "place:behind",
+			"outcome:approached", "outcome:stared", "outcome:looked_away", "outcome:ignored",
+			"phase:arrive", "phase:fight", "phase:killed", "depth:shallow", "depth:deep");
 
 	private static DialogueCatalog catalog;
 	private static final List<String> WARNINGS = new ArrayList<>();
@@ -87,12 +98,16 @@ class ShippedDialogueTest {
 		for (Milestone milestone : Milestone.values()) {
 			milestoneTags.add("milestone:" + milestone.id());
 		}
+		Set<String> modeTags = new HashSet<>();
+		for (HerobrineEntity.Mode mode : HerobrineEntity.Mode.values()) {
+			modeTags.add("mode:" + mode.name().toLowerCase(Locale.ROOT));
+		}
 		for (DialogueLine line : catalog.lines()) {
 			Set<String> tags = new HashSet<>(line.tags());
 			tags.addAll(line.notTags());
 			for (String tag : tags) {
-				boolean known = PLAIN_TAGS.contains(tag) || tierTags.contains(tag) || bossTags.contains(tag)
-						|| milestoneTags.contains(tag) || TAG_PREFIXES.stream().anyMatch(tag::startsWith);
+				boolean known = KNOWN_TAGS.contains(tag) || tierTags.contains(tag) || bossTags.contains(tag)
+						|| milestoneTags.contains(tag) || modeTags.contains(tag) || OPEN_PREFIXES.stream().anyMatch(tag::startsWith);
 				assertTrue(known, line.id() + " uses unknown tag " + tag);
 			}
 		}

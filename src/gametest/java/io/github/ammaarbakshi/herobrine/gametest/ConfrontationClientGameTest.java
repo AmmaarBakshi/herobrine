@@ -142,7 +142,11 @@ public final class ConfrontationClientGameTest implements FabricClientGameTest {
 					"Know Thyself not granted");
 			EncounterHistory history = ModAttachments.encounters(player);
 			GameTests.check(history.total() == 1 && history.wins() == 1, "win not recorded");
-			GameTests.check(HauntLevel.get(player) == ConfrontationManager.WIN_HAUNT_LEVEL, "haunt level after a win: " + HauntLevel.get(player));
+			// Set exactly on the win, but the haunt director may have run since: on this flat world
+			// the player is "underground" at midnight, which adds 0.025 a second while alone.
+			double haunt = HauntLevel.get(player);
+			GameTests.check(haunt >= ConfrontationManager.WIN_HAUNT_LEVEL && haunt < ConfrontationManager.WIN_HAUNT_LEVEL + 0.5,
+					"haunt level after a win: " + haunt);
 		});
 		context.waitTicks(25); // let the death animation finish
 	}

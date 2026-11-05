@@ -36,6 +36,15 @@ distribution's SHA-256, so the same commit produces the same jar everywhere.
 - One logical change per commit, imperative mood ("Add torch thief event").
 - `./gradlew build` must pass before you open a PR; CI runs the same command.
 
+## Dialogue
+
+Herobrine's lines are data: `src/main/resources/data/herobrine/dialogue/`. See
+[docs/DIALOGUE.md](docs/DIALOGUE.md) for the format. `./gradlew test` checks the shipped files, so a
+typo in a tag or a memory counter fails the build instead of silently muting a line. After changing
+lines, run `python tools/gen_voice_script.py` to refresh the recording script.
+
+Voice lines are recorded by the developer; please don't add synthetic or AI-generated voices.
+
 ## Assets
 
 Only original assets or CC0 assets. Record the source and license of anything

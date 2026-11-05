@@ -8,4 +8,8 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
  * texture and eye layer.
  */
 public final class HerobrineRenderState extends HumanoidRenderState {
+	/** 1 when fully there; less while he fades in or out. */
+	public float visibility = 1.0F;
+	/** Only the glowing eyes are drawn. */
+	public boolean eyesOnly;
 }

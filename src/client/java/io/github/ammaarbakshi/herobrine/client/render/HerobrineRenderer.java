@@ -6,7 +6,10 @@ import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +26,11 @@ import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
 public final class HerobrineRenderer
 		extends HumanoidMobRenderer<HerobrineEntity, HerobrineRenderState, HumanoidModel<HerobrineRenderState>> {
 	private static final Identifier TEXTURE = HerobrineMod.id("textures/entity/herobrine/herobrine.png");
+	/**
+	 * Eyes-only mode draws the body with the eyes texture: every other pixel is transparent and
+	 * cut away, so nothing of him shows but the eyes (which the eyes layer then lights up).
+	 */
+	private static final Identifier EYES_TEXTURE = HerobrineMod.id("textures/entity/herobrine/herobrine_eyes.png");
 
 	public HerobrineRenderer(EntityRendererProvider.Context context) {
 		super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), 0.5F);
@@ -38,8 +46,34 @@ public final class HerobrineRenderer
 	}
 
 	@Override
+	public void extractRenderState(HerobrineEntity entity, HerobrineRenderState state, float partialTicks) {
+		super.extractRenderState(entity, state, partialTicks);
+		state.visibility = entity.visibility(partialTicks);
+		state.eyesOnly = entity.eyesOnly();
+	}
+
+	@Override
 	public Identifier getTextureLocation(HerobrineRenderState state) {
-		return TEXTURE;
+		return state.eyesOnly ? EYES_TEXTURE : TEXTURE;
+	}
+
+	/** Translucent while fading, so he can thin out into the air instead of popping. */
+	@Override
+	protected RenderType getRenderType(HerobrineRenderState state, boolean isBodyVisible, boolean forceTransparent, boolean appearGlowing) {
+		if (isBodyVisible && state.visibility < 1.0F) {
+			return RenderTypes.entityTranslucentCull(getTextureLocation(state));
+		}
+		return super.getRenderType(state, isBodyVisible, forceTransparent, appearGlowing);
+	}
+
+	@Override
+	protected int getModelTint(HerobrineRenderState state) {
+		return state.visibility < 1.0F ? ARGB.white(state.visibility) : super.getModelTint(state);
+	}
+
+	@Override
+	protected float getShadowRadius(HerobrineRenderState state) {
+		return state.eyesOnly ? 0.0F : super.getShadowRadius(state) * state.visibility;
 	}
 
 	/** Same poses a player gets (shield block, bow draw, trident wind-up), which mobs lack by default. */

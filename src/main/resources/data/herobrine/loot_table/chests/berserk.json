@@ -1,0 +1,177 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:written_book",
+          "modifier": [
+            {
+              "type": "minecraft:set_book_cover",
+              "title": "Field Notes",
+              "author": "?",
+              "generation": 3
+            },
+            {
+              "type": "minecraft:set_written_book_pages",
+              "pages": [
+                "Day 3.\n\nThe torches I placed in the cave are gone. Not broken. Gone. As if I never placed them.",
+                "Day 9.\n\nSomeone is digging tunnels near my mine. Two by two, perfectly straight. I don't dig like that. Nobody digs like that.",
+                "Day 14.\n\nA man on the ridge. My height. My clothes. He didn't move. When I looked again the ridge was empty, and the snow had no footprints.",
+                "Day 15.\n\nI have started building this place. I don't know why. My hands know the shape before I do.",
+                "Day ?\n\nHe talks now. Calm. Kind, almost. He knows what I did today. He knows what I will do tomorrow."
+              ],
+              "mode": "replace_all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:written_book",
+          "modifier": [
+            {
+              "type": "minecraft:set_book_cover",
+              "title": "BERSERK",
+              "author": "Unknown",
+              "generation": 0
+            },
+            {
+              "type": "minecraft:set_written_book_pages",
+              "pages": [
+                "\n\n\n\n       WATCH",
+                "\n\n\n\n       LEARN",
+                "\n\n\n\n      BECOME",
+                "\n\n\n\n      RETURN"
+              ],
+              "mode": "replace_all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:written_book",
+          "modifier": [
+            {
+              "type": "minecraft:set_book_cover",
+              "title": "To Whoever Digs",
+              "author": "A friend",
+              "generation": 1
+            },
+            {
+              "type": "minecraft:set_written_book_pages",
+              "pages": [
+                "If you are reading this, he already knows your name.\n\nHe learned it the way he learns everything. By watching.",
+                "Don't run. He knows how you run.\n\nDon't hide. He knows where you hide.\n\nDon't fight him. He will only learn that too.",
+                "Light the shrine if you must. But understand: you are not calling him.\n\nYou are answering."
+              ],
+              "mode": "replace_all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 4
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:redstone",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          },
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:candle",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          },
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bone",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          },
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:soul_torch",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 4
+            }
+          },
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          },
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:ink_sac",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cobweb"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "herobrine:chests/berserk"
+}

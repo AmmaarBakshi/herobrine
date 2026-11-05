@@ -6,9 +6,11 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
 import io.github.ammaarbakshi.herobrine.HerobrineMod;
+import io.github.ammaarbakshi.herobrine.behaviour.ObserverState;
 import io.github.ammaarbakshi.herobrine.encounter.EncounterHistory;
 import io.github.ammaarbakshi.herobrine.haunt.HauntState;
 import io.github.ammaarbakshi.herobrine.haunt.PlayerTrail;
+import io.github.ammaarbakshi.herobrine.memory.ObserverMemory;
 import io.github.ammaarbakshi.herobrine.mirror.CombatState;
 import io.github.ammaarbakshi.herobrine.mirror.PlayerProfile;
 import io.github.ammaarbakshi.herobrine.mirror.ProfileCodecs;
@@ -31,8 +33,15 @@ public final class ModAttachments {
 	public static final AttachmentType<EncounterHistory> ENCOUNTERS = AttachmentRegistry.create(HerobrineMod.id("encounters"),
 			builder -> builder.persistent(EncounterHistory.CODEC).copyOnDeath().initializer(EncounterHistory::new));
 
+	/** What he remembers of the player's whole journey (see {@link ObserverMemory}). */
+	public static final AttachmentType<ObserverMemory> MEMORY = AttachmentRegistry.create(HerobrineMod.id("memory"),
+			builder -> builder.persistent(ObserverMemory.CODEC).copyOnDeath().initializer(ObserverMemory::new));
+
 	/** Transient: not saved and not copied on death, so it starts fresh after a relog or respawn. */
 	public static final AttachmentType<PlayerTrail> TRAIL = AttachmentRegistry.createDefaulted(HerobrineMod.id("trail"), PlayerTrail::new);
+
+	/** Transient: what the observer is tracking right now (weather, caves, building, bosses nearby). */
+	public static final AttachmentType<ObserverState> OBSERVER = AttachmentRegistry.createDefaulted(HerobrineMod.id("observer"), ObserverState::new);
 
 	/** Transient recorder bookkeeping for the fight in progress. */
 	public static final AttachmentType<CombatState> COMBAT = AttachmentRegistry.createDefaulted(HerobrineMod.id("combat"), CombatState::new);
@@ -61,5 +70,13 @@ public final class ModAttachments {
 
 	public static CombatState combat(Player player) {
 		return player.getAttachedOrCreate(COMBAT);
+	}
+
+	public static ObserverMemory memory(Player player) {
+		return player.getAttachedOrCreate(MEMORY);
+	}
+
+	public static ObserverState observer(Player player) {
+		return player.getAttachedOrCreate(OBSERVER);
 	}
 }

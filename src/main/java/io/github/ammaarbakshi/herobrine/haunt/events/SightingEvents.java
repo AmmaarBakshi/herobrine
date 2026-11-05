@@ -1,11 +1,19 @@
 package io.github.ammaarbakshi.herobrine.haunt.events;
 
+import io.github.ammaarbakshi.herobrine.behaviour.AppearanceController;
 import io.github.ammaarbakshi.herobrine.haunt.HauntPhase;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 
-/** Lets the director pick sightings the same way as signs. The work is in {@link SightingController}. */
+/**
+ * Lets the director pick sightings the same way as signs. The work is in {@link SightingController}.
+ * They share the observer's appearance cooldown, so the haunt never makes him common.
+ */
 final class SightingEvents {
 	private SightingEvents() {
+	}
+
+	private static boolean free(EventContext ctx) {
+		return !SightingController.isActive(ctx.player()) && AppearanceController.offCooldown(ctx.player());
 	}
 
 	static final class Distant implements HauntEvent {
@@ -26,7 +34,7 @@ final class SightingEvents {
 
 		@Override
 		public int weight(EventContext ctx) {
-			return SightingController.isActive(ctx.player()) ? 0 : 16;
+			return free(ctx) ? 16 : 0;
 		}
 
 		@Override
@@ -53,7 +61,7 @@ final class SightingEvents {
 
 		@Override
 		public int weight(EventContext ctx) {
-			return SightingController.isActive(ctx.player()) ? 0 : 10;
+			return free(ctx) ? 10 : 0;
 		}
 
 		@Override
@@ -81,7 +89,7 @@ final class SightingEvents {
 		@Override
 		public int weight(EventContext ctx) {
 			boolean allowed = ctx.config().jumpscares && ctx.haunt().canJumpscare(ctx.day(), ctx.config().maxJumpscaresPerDay);
-			return allowed && !SightingController.isActive(ctx.player()) ? 3 : 0;
+			return allowed && free(ctx) ? 3 : 0;
 		}
 
 		@Override

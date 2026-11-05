@@ -191,5 +191,17 @@
   "herobrine.counter.anti_pillar": "Come down.",
   "herobrine.counter.gap_closer": "You can't outrun me.",
   "herobrine.counter.heal_burst": "Before you can heal.",
-  "herobrine.counter.pearl_follow": "I saw where it landed."
+  "herobrine.counter.pearl_follow": "I saw where it landed.",
+  "herobrine.command.status.observer": "  Seen him %s times (he appeared %s), lines heard: %s, deaths: %s",
+  "herobrine.command.memory.header": "What Herobrine remembers about %s:",
+  "herobrine.command.memory.reset": "Herobrine forgot everything about %s",
+  "herobrine.command.appear.success": "Herobrine appears (%s) for %s",
+  "herobrine.command.appear.unknown": "Unknown appearance %s. Known: observer, distant, behind, eyes",
+  "herobrine.command.voice.said": "Herobrine says %s to %s (%s)",
+  "herobrine.command.voice.recorded": "recording",
+  "herobrine.command.voice.caption": "no recording in the mod yet: shown as a caption",
+  "herobrine.command.voice.unknown_line": "Unknown line %s",
+  "herobrine.command.voice.nothing": "No line for %s right now: %s",
+  "herobrine.command.voice.recordings": "%s of %s lines have a recording in the mod",
+  "herobrine.command.perf.observer": "The observer (voice, appearances, observations): %s µs per server tick on average, worst %s µs, over %s ticks"
 }

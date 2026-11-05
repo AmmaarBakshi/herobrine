@@ -10,7 +10,11 @@ import org.jspecify.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -70,6 +74,13 @@ public final class HerobrineEntity extends Monster {
 		JUMPSCARE(false),
 		/** Silently re-enacts the player's own recent movement. */
 		GHOST(false),
+		/**
+		 * The Living Observer: stands in plain view and watches for a while. Leaves when the player
+		 * walks up to him, or once they have seen him and look away.
+		 */
+		OBSERVER(false),
+		/** Only his glowing eyes, in the dark. Gone if approached or stared at for too long. */
+		EYES(false),
 		/** The Mirror boss fight. Saved so a chunk unload mid-fight resumes safely. */
 		BOSS(true),
 		/** Stands over the respawn point after the player loses, then leaves. */
@@ -94,6 +105,20 @@ public final class HerobrineEntity extends Monster {
 		}
 	}
 
+	/** How he arrives and leaves; synced so the client can fade him in and out. */
+	public enum Fade {
+		/** There at once (the classic way: he is simply there when you turn). */
+		INSTANT,
+		FADING_IN,
+		FADING_OUT
+	}
+
+	public static final int FADE_IN_TICKS = 30;
+	public static final int FADE_OUT_TICKS = 16;
+
+	private static final EntityDataAccessor<Byte> DATA_MODE = SynchedEntityData.defineId(HerobrineEntity.class, EntityDataSerializers.BYTE);
+	private static final EntityDataAccessor<Byte> DATA_FADE = SynchedEntityData.defineId(HerobrineEntity.class, EntityDataSerializers.BYTE);
+
 	public static final double DEFAULT_HEALTH = 40.0;
 	/** Roughly a walking player; goals scale it up for sprinting. */
 	public static final double BASE_SPEED = 0.3;
@@ -106,6 +131,10 @@ public final class HerobrineEntity extends Monster {
 	private @Nullable ServerPlayer watchedCache;
 	private long watchedCacheTick = -1;
 	private int ageInMode;
+	/** Age at which a fading-out apparition is removed; -1 while he isn't leaving. */
+	private int leaveAt = -1;
+	/** Client only: {@link #tickCount} when the current fade began. */
+	private int fadeStartTick;
 	/** Boss mode only; rebuilt lazily from the saved fields below after a reload. */
 	private @Nullable MirrorBrain brain;
 	private int savedHealsUsed;
@@ -126,6 +155,23 @@ public final class HerobrineEntity extends Monster {
 
 	{
 		bossEvent.setDarkenScreen(true);
+	}
+
+	@Override
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(DATA_MODE, (byte) Mode.IDLE.ordinal());
+		builder.define(DATA_FADE, (byte) Fade.INSTANT.ordinal());
+	}
+
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
+		super.onSyncedDataUpdated(accessor);
+		if (accessor.equals(DATA_FADE)) {
+			fadeStartTick = tickCount;
+		} else if (accessor.equals(DATA_MODE) && level().isClientSide()) {
+			mode = Mode.values()[Math.floorMod(entityData.get(DATA_MODE), Mode.values().length)];
+		}
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -162,6 +208,39 @@ public final class HerobrineEntity extends Monster {
 	public void setMode(Mode mode) {
 		this.mode = mode;
 		this.ageInMode = 0;
+		entityData.set(DATA_MODE, (byte) mode.ordinal());
+	}
+
+	public Fade fade() {
+		return Fade.values()[Math.floorMod(entityData.get(DATA_FADE), Fade.values().length)];
+	}
+
+	/** Fades in from nothing instead of simply being there. Call before adding him to the level. */
+	public void fadeIn() {
+		entityData.set(DATA_FADE, (byte) Fade.FADING_IN.ordinal());
+	}
+
+	/** True while he is leaving: he can no longer be touched and is about to be removed. */
+	public boolean isLeaving() {
+		return leaveAt >= 0;
+	}
+
+	/**
+	 * Client only: how visible he is right now, 0 to 1. Fades are timed on the client from the
+	 * moment the change arrived, so they are smooth whatever the server's tick rate.
+	 */
+	public float visibility(float partialTick) {
+		float elapsed = tickCount - fadeStartTick + partialTick;
+		return switch (fade()) {
+			case INSTANT -> 1.0F;
+			case FADING_IN -> Mth.clamp(elapsed / FADE_IN_TICKS, 0.0F, 1.0F);
+			case FADING_OUT -> Mth.clamp(1.0F - elapsed / FADE_OUT_TICKS, 0.0F, 1.0F);
+		};
+	}
+
+	/** Client only: just the eyes, no body, no shadow. */
+	public boolean eyesOnly() {
+		return mode == Mode.EYES;
 	}
 
 	public int ageInMode() {
@@ -230,12 +309,31 @@ public final class HerobrineEntity extends Monster {
 		discard();
 	}
 
+	/**
+	 * Leaves where the player can see it: fades out over {@link #FADE_OUT_TICKS} with a breath of
+	 * smoke, then is removed. For when vanishing outright would look like a glitch.
+	 */
+	public void fadeAway() {
+		if (isLeaving() || isRemoved()) {
+			return;
+		}
+		leaveAt = ageInMode + FADE_OUT_TICKS;
+		entityData.set(DATA_FADE, (byte) Fade.FADING_OUT.ordinal());
+		getNavigation().stop();
+		if (level() instanceof ServerLevel serverLevel && mode != Mode.EYES) {
+			serverLevel.sendParticles(ParticleTypes.SMOKE, getX(), getY() + 1.0, getZ(), 12, 0.25, 0.6, 0.25, 0.01);
+		}
+	}
+
 	// --- Lifecycle ---------------------------------------------------------------------------
 
 	@Override
 	public void tick() {
 		super.tick();
 		ageInMode++;
+		if (leaveAt >= 0 && ageInMode >= leaveAt && !level().isClientSide()) {
+			discard();
+		}
 	}
 
 	@Override
@@ -315,6 +413,9 @@ public final class HerobrineEntity extends Monster {
 
 	@Override
 	public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+		if (isLeaving()) {
+			return false;
+		}
 		if (mode == Mode.IDLE || mode == Mode.BOSS) {
 			return super.hurtServer(level, source, damage);
 		}
@@ -376,7 +477,7 @@ public final class HerobrineEntity extends Monster {
 	@Override
 	protected void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
-		mode = Mode.byName(input.getStringOr("HerobrineMode", "idle"));
+		setMode(Mode.byName(input.getStringOr("HerobrineMode", "idle")));
 		watchedPlayerId = input.read("WatchedPlayer", UUIDUtil.CODEC).orElse(null);
 		watchedCacheTick = -1;
 		savedHealsUsed = input.getIntOr("BossHealsUsed", 0);

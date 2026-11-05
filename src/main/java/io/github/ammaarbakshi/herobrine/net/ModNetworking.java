@@ -19,6 +19,7 @@ public final class ModNetworking {
 		PayloadTypeRegistry.clientboundPlay().register(DebugProfilePayload.TYPE, DebugProfilePayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(MirrorProfilePayload.TYPE, MirrorProfilePayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(ConfrontationCuePayload.TYPE, ConfrontationCuePayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(VoiceLinePayload.TYPE, VoiceLinePayload.CODEC);
 	}
 
 	/** Sends {@code player} their own profile for the Mirror Shard screen. Skipped for vanilla clients. */

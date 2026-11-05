@@ -58,6 +58,21 @@ class HerobrineConfigTest {
 	}
 
 	@Test
+	void observerSettingsHaveSaneDefaultsAndBounds() throws IOException {
+		Path file = dir.resolve("herobrine.json");
+		Files.writeString(file, "{\"appearanceChancePerMinute\": 3, \"voiceMinGapSeconds\": -10}", StandardCharsets.UTF_8);
+
+		HerobrineConfig config = HerobrineConfig.load(file);
+
+		assertTrue(config.observer);
+		assertTrue(config.voice);
+		assertEquals(1.0, config.appearanceChancePerMinute);
+		assertEquals(0, config.voiceMinGapSeconds);
+		assertEquals(20, config.appearanceCooldownMinutes);
+		assertTrue(Files.readString(file).contains("\"appearanceCooldownMinutes\""));
+	}
+
+	@Test
 	void malformedFileKeepsPreviousConfigAndFile() throws IOException {
 		HerobrineConfig before = HerobrineConfig.load(dir.resolve("good.json"));
 		Path bad = dir.resolve("bad.json");

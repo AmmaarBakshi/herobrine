@@ -1,8 +1,9 @@
 # Herobrine: The Mirror
 
-A Fabric mod for Minecraft **26.3** in which Herobrine haunts you, quietly studies
-*how you play*, then shows up as a doppelgänger boss that fights exactly like you,
-and gets better at countering you every time he comes back.
+A Fabric mod for Minecraft **26.3** in which Herobrine lives in your world. He watches your
+whole journey, remembers it, and now and then says something about it, calmly, in a voice of
+his own. He also quietly studies *how you fight*, then shows up as a doppelgänger boss that
+fights exactly like you, and gets better at countering you every time he comes back.
 
 > **Status:** feature-complete for v1 (milestones M1-M9). Every milestone is checked by an
 > in-game test; see [Tests](#tests).
@@ -11,10 +12,92 @@ and gets better at countering you every time he comes back.
 
 | Act | Name | What you feel |
 |---|---|---|
+| ∞ | **The Observer** | From the first day, someone is watching. Rarely, he is there. Sometimes he talks. |
 | I | **Signs** | Something is off in your world: missing torches, strange tunnels, sounds. |
 | II | **Sightings** | You keep seeing *someone* at the edge of view. Look at him and he's gone. |
 | III | **The Mirror** | He fights like you: your weapon, your strafe, your healing habits. |
 | ↺ | **Return** | Win or lose, he comes back, having learned to counter you. |
+
+## The Living Observer
+
+Herobrine is not an event that happens to you. He is a character who experiences your world
+alongside you. He is not a mob and he doesn't chase you: most of the time he isn't there at all.
+
+### How he appears
+
+Rarely. Every appearance shares one cooldown (`appearanceCooldownMinutes`, 20 by default), and
+after it a roll once a minute (`appearanceChancePerMinute`) decides, so the gaps are never regular
+and are sometimes hours long. He is likelier when you are alone, at night, and near the BERSERK
+memorial; never while you fight, and never during a boss fight unless `appearDuringBossFights` is on.
+
+When he does appear, he picks a place with character: beside a tree trunk, on the far bank of a
+river, on a ridge above you, in an old ruin, at the edge of a village, near your home, deep in a
+dark cave. And one of four ways
+(`appearanceWeights`):
+
+| Way | What happens |
+|---|---|
+| `observer` | He stands in plain view and watches. Look at him and he lets you, for a while. Look away and he is gone. Walk up to him and he thins out into smoke. Sometimes he fades in at the edge of your view. |
+| `distant` | Far away at the edge of your view. Look straight at him and he vanishes. |
+| `behind` | Close behind you. One footstep. He is gone the moment you turn around. |
+| `eyes` | In the dark, only his two glowing eyes. Approach, stare too long, or light a torch, and they go out. |
+
+How it ends is remembered: whether you stared him down, walked up to him, looked away, or never
+noticed him at all (he takes that personally).
+
+### What he notices
+
+| Moment | How it is noticed |
+|---|---|
+| Your gear: wooden, stone, copper, iron, diamond, netherite | The first time you hold or wear a better tier |
+| The Wither, the Ender Dragon, the Warden | When one is built, emerges or found, when you fight it, when it dies. He never interferes. |
+| Rain and thunderstorms | You out in them, once per spell |
+| Caves | A minute underground |
+| Building | 40 blocks placed close together |
+| Your deaths | Their cause, and how many there have been |
+| Milestones | First house (a bed under a roof), first night survived, first mining trip, first Nether portal, first enchantment, first village, first diamonds, first Elytra, first dragon, finding the memorial |
+
+He compares everything with what you already had when he started watching, so installing the mod
+in an old world doesn't make him comment on every diamond you found last year.
+
+### His voice
+
+His lines are recordings, played straight from `.ogg` files: drop a file into
+`assets/herobrine/sounds/voice/<category>/` (in the mod or a resource pack) and it plays; nothing
+needs registering. Until a line is recorded, its words appear as a caption instead, so a missing
+file never loses a line. With vanilla subtitles on, recorded lines are captioned too.
+
+He speaks rarely: each moment has a chance and a cooldown, at least `voiceMinGapSeconds` pass
+between two lines, he never repeats one of his last eight lines, and he would rather say nothing
+than repeat himself. The fourth-wall lines, where he talks about his developer, are the rarest of
+all (and can be switched off with `fourthWall`).
+
+- [docs/VOICE_SCRIPT.md](docs/VOICE_SCRIPT.md): the recording script. Every line with its file
+  name, delivery note and when it plays, and which are recorded.
+- [docs/DIALOGUE.md](docs/DIALOGUE.md): how to write lines and change when he speaks. The lines
+  are data (`data/herobrine/dialogue/`), so data packs can add to them or replace them.
+
+### What he remembers
+
+Per player, saved with the player: deaths, sightings and how each ended, bosses met and killed,
+your best gear, milestones, where he last stood, where you sleep, a short diary of important
+events, and every line he has said and when. Lines depend on it: the first time you meet him he
+says one thing, the fifth time another, the twentieth something else. `/herobrine memory <player>`
+shows all of it.
+
+### The BERSERK memorial
+
+A small ruin of old stone that generates on its own in plains, forests, taigas, meadows and
+savannas. It explains nothing. There are inscriptions, a broken shrine, an altar with a riddle,
+and something under the floor for those who dig. He is far likelier to appear near it.
+`/locate structure herobrine:berserk` finds the nearest one.
+
+### What it costs
+
+Nothing scans the world. He reacts to events, looks around once every 5 seconds per player
+(a handful of lookups), and a little more every 20 seconds. Measured on a slow test VM: about
+**16 µs per server tick with one player**, worst tick 0.2 ms. `/herobrine perf` shows the
+observer on its own line, so you can check your own server.
 
 ## Requirements
 
@@ -40,8 +123,13 @@ All commands need op level 2.
 | `/herobrine profile <player> reset` | Wipe the profile |
 | `/herobrine profile <player> preset <name>` | Load a test profile: `bow_kiter`, `sword_spammer`, `shield_turtle`, `pillar_coward` |
 | `/herobrine summon <player>` | Start the confrontation now (full arrival sequence) |
-| `/herobrine perf [reset]` | Measured cost of the recorder, the haunt systems and the boss AI |
+| `/herobrine perf [reset]` | Measured cost of the recorder, the haunt systems, the observer and the boss AI |
 | `/herobrine reload` | Reload `config/herobrine.json` |
+| `/herobrine memory <player> [reset]` | Everything he remembers about the player, or forget it all |
+| `/herobrine appear <player> [observer\|distant\|behind\|eyes]` | Make him appear now (skips the cooldown) |
+| `/herobrine voice say <player> <line>` | Play one line (tab-completes every id), e.g. to check a recording |
+| `/herobrine voice trigger <player> <trigger> [tags]` | Let him pick a line for a moment, ignoring chance and cooldowns |
+| `/herobrine voice recordings` | How many lines have a recording, per category |
 
 
 ### What he learns
@@ -165,6 +253,14 @@ and a malformed file is ignored (your edits are never overwritten). Apply change
 | `sightingsThreshold` | `25` | Haunt level where Sightings begin |
 | `stalkingThreshold` | `60` | Haunt level where Stalking begins |
 | `confrontationThreshold` | `90` | Haunt level where a Confrontation becomes possible |
+| `observer` | `true` | The Living Observer: his own appearances, what he notices, his voice |
+| `voice` | `true` | His voice lines (captions when a recording is missing) |
+| `voiceMinGapSeconds` | `90` | Least time between any two of his lines |
+| `fourthWall` | `true` | Allow the (already extremely rare) lines about being a programmed character |
+| `appearanceCooldownMinutes` | `20` | Least time between two appearances of any kind |
+| `appearanceChancePerMinute` | `0.05` | Once off cooldown, chance each minute that he appears |
+| `appearDuringBossFights` | `false` | Let him watch boss fights from a distance |
+| `appearanceWeights` | `observer 5, distant 3, behind 1, eyes 3` | How likely each way of appearing is; 0 switches one off |
 
 ## Building from source
 
@@ -198,6 +294,7 @@ in-game, saving screenshots to `build/run/clientGameTest/screenshots/`:
 | `Mirror` | `bow_kiter` and `sword_spammer` produce different fights; heal and pillar escapes |
 | `Confrontation` | Shrine, natural trigger, win (shard, advancement), loss (aftermath), Peaceful, restart |
 | `Counter` | Second fight against a shield user brings an axe that disables the shield; every counter; taunts |
+| `Observer` | He watches and leaves when looked away from or approached, eyes only in the dark, speaks (caption while unrecorded), notices an iron sword, recognises the BERSERK memorial, remembers it all after a restart |
 | `DedicatedServer` | A real dedicated server and network connection: payloads, shard screen, a full fight, leaving mid-fight, rejoining; boss AI cost |
 
 To try it with two players by hand, run `./gradlew runServer` (accept the EULA in
@@ -213,7 +310,8 @@ him vanish or fights him.
 - Jars are built without file timestamps and with a stable entry order, so the same
   commit produces a byte-identical jar on any machine.
 - Line endings are normalised via `.gitattributes`.
-- Generated assets (icon, textures, sounds) come from fixed-seed scripts in `tools/`.
+- Generated assets (icon, textures, sounds, the memorial's template) come from fixed-seed
+  scripts in `tools/`. `tools/gen_voice_script.py` rebuilds docs/VOICE_SCRIPT.md from the dialogue.
 
 ## Roadmap
 
@@ -226,6 +324,16 @@ him vanish or fights him.
 - [x] **M7** Confrontation, boss fight, Mirror Shard, advancement
 - [x] **M8** Adaptive counters and taunts
 - [x] **M9** Sounds, dedicated-server testing, performance pass
+- [ ] **M10** The Living Observer
+  - [x] Rare appearances with configurable chance and cooldown, places with character
+  - [x] Observer and eyes-only modes, fading in and out, leaving when approached or looked away from
+  - [x] Data-driven dialogue, recorded voice lines with caption fallback, no repetition
+  - [x] Comments on weather, caves, building, deaths, gear, bosses and milestones
+  - [x] Persistent memory that the lines depend on
+  - [x] Fourth-wall lines, extremely rare
+  - [x] The BERSERK memorial
+  - [ ] The developer's recordings (see [docs/VOICE_SCRIPT.md](docs/VOICE_SCRIPT.md))
+  - [ ] Balancing from real play
 
 ## Contributing
 

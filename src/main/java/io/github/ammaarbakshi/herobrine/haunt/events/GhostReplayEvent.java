@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 
+import io.github.ammaarbakshi.herobrine.behaviour.AppearanceController;
 import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
 import io.github.ammaarbakshi.herobrine.haunt.HauntPhase;
 import io.github.ammaarbakshi.herobrine.haunt.PlayerTrail;
@@ -39,7 +40,8 @@ final class GhostReplayEvent implements HauntEvent {
 
 	@Override
 	public int weight(EventContext ctx) {
-		return ctx.trail().hasFullReplay() && !SightingController.isActive(ctx.player()) ? 6 : 0;
+		return ctx.trail().hasFullReplay() && !SightingController.isActive(ctx.player())
+				&& AppearanceController.offCooldown(ctx.player()) ? 6 : 0;
 	}
 
 	@Override

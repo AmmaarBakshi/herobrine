@@ -90,7 +90,7 @@ Besides the trigger's own tags, every line is chosen with these:
 | `alone` | No other player within 64 blocks |
 | `health:low` | At or below 30% health |
 | `creative` | In creative mode |
-| `near:home`, `near:village`, `near:berserk` | Within 48 blocks of their bed, a village bell, or in the memorial |
+| `near:home`, `near:village`, `near:berserk` | Within 48 blocks of their bed; in a village; in the memorial |
 | `visible`, `mode:observer`, `mode:eyes`, `mode:sighting` (far away), `mode:stalking` (behind them) | He is standing somewhere right now |
 | `place:tree`, `place:river`, `place:ridge`, `place:ruin`, `place:village`, `place:home`, `place:cave`, `place:open`, `place:dark`, `place:distant`, `place:behind` | Where he chose to appear |
 | `ignored` | The player missed his last two appearances or more |

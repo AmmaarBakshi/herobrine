@@ -11,6 +11,8 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -19,6 +21,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.StructureTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,8 +30,6 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.warden.Warden;
@@ -47,7 +48,6 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
@@ -61,7 +61,6 @@ import io.github.ammaarbakshi.herobrine.memory.Milestone;
 import io.github.ammaarbakshi.herobrine.memory.ObserverMemory;
 import io.github.ammaarbakshi.herobrine.memory.Place;
 import io.github.ammaarbakshi.herobrine.memory.WorldEvent;
-import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 
@@ -73,15 +72,14 @@ import io.github.ammaarbakshi.herobrine.sighting.SightingController;
  * deaths (bosses, the player's own deaths), entity loads (a Wither being built, a Warden
  * emerging), dimension changes (the Nether, the End), sleeping (home), block placing
  * (building). Everything else is one staggered look-around per player every 5 seconds
- * (weather, caves, nights) and a slower one every 20 seconds (villages, the memorial,
- * advancements). No world scans: each check is a handful of lookups.
+ * (weather, caves, nights) and a slower one every 20 seconds (villages and the memorial, from the
+ * chunk's structure references; advancements). No world scans: each check is a handful of lookups.
  */
 public final class ObservationController {
 	public static final ResourceKey<Structure> BERSERK = ResourceKey.create(Registries.STRUCTURE, HerobrineMod.id("berserk"));
 
 	private static final int SCAN_INTERVAL = 5 * 20;
 	private static final int SLOW_SCAN_EVERY = 4;
-	private static final int VILLAGE_RANGE = 48;
 	private static final double HOME_RANGE = 48.0;
 	/** Below sea level by this much, with no sky: underground. */
 	private static final int UNDERGROUND_DEPTH = 8;
@@ -110,7 +108,6 @@ public final class ObservationController {
 	}
 
 	public static void init() {
-		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, ObservationController::tick));
 		ServerPlayerEvents.JOIN.register(player -> ModAttachments.observer(player).since = Observer.now(player));
 		ServerPlayerEvents.AFTER_RESPAWN.register(ObservationController::onRespawn);
 		ServerLivingEntityEvents.AFTER_DEATH.register(ObservationController::onDeath);
@@ -126,7 +123,7 @@ public final class ObservationController {
 
 	// --- The look-around ----------------------------------------------------------------------
 
-	private static void tick(MinecraftServer server) {
+	static void tick(MinecraftServer server) {
 		tick++;
 		if (!Observer.active()) {
 			return;
@@ -170,8 +167,7 @@ public final class ObservationController {
 		if (slow) {
 			advancements(player, memory);
 			if (overworld) {
-				village(player, state);
-				memorial(player, state);
+				places(player, state);
 			}
 			DialogueController.trigger(player, "idle");
 		}
@@ -278,21 +274,31 @@ public final class ObservationController {
 		}
 	}
 
-	private static void village(ServerPlayer player, ObserverState state) {
-		state.nearVillage = player.level().getPoiManager()
-				.findClosest(type -> type.is(PoiTypes.MEETING), player.blockPosition(), VILLAGE_RANGE, PoiManager.Occupancy.ANY)
-				.isPresent();
+	/**
+	 * Villages and the memorial are both structures, so one lookup in the chunk's structure
+	 * references answers both (no POI or block scans).
+	 */
+	private static void places(ServerPlayer player, ObserverState state) {
+		ServerLevel level = player.level();
+		Map<Structure, ?> references = level.structureManager().getAllStructuresAt(player.blockPosition());
+		state.nearVillage = false;
+		state.nearBerserk = false;
+		if (references.isEmpty()) {
+			return;
+		}
+		Registry<Structure> registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
+		for (Structure structure : references.keySet()) {
+			Holder<Structure> holder = registry.wrapAsHolder(structure);
+			if (holder.is(BERSERK)) {
+				state.nearBerserk = true;
+			} else if (holder.is(StructureTags.VILLAGE)) {
+				state.nearVillage = true;
+			}
+		}
 		if (state.nearVillage) {
 			recognise(player, Milestone.FIRST_VILLAGE);
 		}
-	}
-
-	private static void memorial(ServerPlayer player, ObserverState state) {
-		ServerLevel level = player.level();
-		Structure berserk = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).getValue(BERSERK);
-		boolean near = berserk != null && level.structureManager().getAllStructuresAt(player.blockPosition()).containsKey(berserk);
-		state.nearBerserk = near;
-		if (near) {
+		if (state.nearBerserk) {
 			recognise(player, Milestone.FOUND_BERSERK);
 		}
 	}

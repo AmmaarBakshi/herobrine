@@ -2,6 +2,25 @@
 
 All notable changes are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### The Living Observer
+- Herobrine as a character who shares your world: rare appearances, with configurable chance
+  and cooldown, in places with character such as ruins and the edges of villages. He watches,
+  shows only his eyes in the dark, fades in and out, and leaves when approached or looked away
+  from.
+- His voice: data-driven lines (`data/herobrine/dialogue/`, see `docs/DIALOGUE.md`) about
+  weather, caves, building, deaths, gear, bosses and milestones, chosen by what he remembers
+  and never repeated too soon, plus extremely rare fourth-wall lines (`fourthWall` switches
+  them off).
+- Lines play the developer's own recordings and show as captions until recorded; the
+  recording script is `docs/VOICE_SCRIPT.md`.
+- Persistent per-player memory of encounters, deaths, bosses, gear, milestones and what he
+  has said.
+- The BERSERK memorial, a rare structure with books to find.
+- `/herobrine memory`, `/herobrine appear` and `/herobrine voice`; `/herobrine perf` reports
+  the observer on its own line.
+
 ## 1.0.0
 
 The first complete version, for Minecraft 26.3 with Fabric API 0.165.2+26.3.

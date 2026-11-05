@@ -32,6 +32,25 @@ public final class HerobrineConfig {
 		NATURAL_ONLY
 	}
 
+	/** Relative chance of each way he can appear, when he does. 0 switches one off. */
+	public static final class AppearanceWeights {
+		/** Stands in plain view and watches: by a tree, across a river, near your home. */
+		public int observer = 5;
+		/** Far away at the edge of view; gone when looked at. */
+		public int distant = 3;
+		/** Close behind you; gone when you turn around. */
+		public int behind = 1;
+		/** Only his eyes, in the dark. */
+		public int eyes = 3;
+
+		void sanitize() {
+			observer = clamp(observer, 0, 100);
+			distant = clamp(distant, 0, 100);
+			behind = clamp(behind, 0, 100);
+			eyes = clamp(eyes, 0, 100);
+		}
+	}
+
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 	private static final String FILE_NAME = "herobrine.json";
 
@@ -55,6 +74,24 @@ public final class HerobrineConfig {
 	public int sightingsThreshold = 25;
 	public int stalkingThreshold = 60;
 	public int confrontationThreshold = 90;
+
+	// --- The Living Observer ------------------------------------------------------------------
+
+	/** He watches your whole journey: rare appearances, comments, memory. */
+	public boolean observer = true;
+	/** His recorded voice lines (shown as captions if a recording is missing). */
+	public boolean voice = true;
+	/** At least this long between any two of his lines. */
+	public int voiceMinGapSeconds = 90;
+	/** Lines where he talks about being a programmed character. Already extremely rare. */
+	public boolean fourthWall = true;
+	/** Shortest time between two appearances; every appearance, haunt sightings included, shares it. */
+	public int appearanceCooldownMinutes = 20;
+	/** Chance per minute, once the cooldown is over, that he appears. 0.05 is about every 20 minutes on top. */
+	public double appearanceChancePerMinute = 0.05;
+	/** Let him watch Wither, Ender Dragon and Warden fights from a distance. He never joins in. */
+	public boolean appearDuringBossFights = false;
+	public AppearanceWeights appearanceWeights = new AppearanceWeights();
 
 	public static HerobrineConfig get() {
 		return current;
@@ -122,6 +159,13 @@ public final class HerobrineConfig {
 		sightingsThreshold = clamp(sightingsThreshold, 0, 100);
 		stalkingThreshold = clamp(stalkingThreshold, sightingsThreshold, 100);
 		confrontationThreshold = clamp(confrontationThreshold, stalkingThreshold, 100);
+		voiceMinGapSeconds = clamp(voiceMinGapSeconds, 0, 24 * 60 * 60);
+		appearanceCooldownMinutes = clamp(appearanceCooldownMinutes, 0, 7 * 24 * 60);
+		appearanceChancePerMinute = clamp(appearanceChancePerMinute, 0.0, 1.0);
+		if (appearanceWeights == null) {
+			appearanceWeights = new AppearanceWeights();
+		}
+		appearanceWeights.sanitize();
 	}
 
 	private static int clamp(int value, int min, int max) {

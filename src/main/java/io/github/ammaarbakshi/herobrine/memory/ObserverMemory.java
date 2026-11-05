@@ -49,6 +49,7 @@ public final class ObserverMemory implements DialogueHistory {
 			WorldEvent.CODEC.listOf().lenientOptionalFieldOf("events", List.of()).forGetter(m -> List.copyOf(m.events)),
 			Codec.LONG.lenientOptionalFieldOf("firstMet", -1L).forGetter(m -> m.firstMet),
 			Codec.LONG.lenientOptionalFieldOf("lastSpoke", -1L).forGetter(m -> m.lastSpoke),
+			Codec.LONG.lenientOptionalFieldOf("observedSince", -1L).forGetter(m -> m.observedSince),
 			Codec.BOOL.lenientOptionalFieldOf("baselined", false).forGetter(m -> m.baselined)
 	).apply(i, ObserverMemory::new));
 
@@ -64,6 +65,7 @@ public final class ObserverMemory implements DialogueHistory {
 	private @Nullable Place home;
 	private long firstMet = -1;
 	private long lastSpoke = -1;
+	private long observedSince = -1;
 	private boolean baselined;
 
 	public ObserverMemory() {
@@ -72,7 +74,7 @@ public final class ObserverMemory implements DialogueHistory {
 	private ObserverMemory(Map<String, Integer> counters, List<String> milestones, Map<String, Long> lines,
 			Map<String, Long> categories, Map<String, Long> triggers, List<String> recent, List<Long> encounterTimes,
 			Optional<Place> lastAppearance, Optional<Place> home, List<WorldEvent> events,
-			long firstMet, long lastSpoke, boolean baselined) {
+			long firstMet, long lastSpoke, long observedSince, boolean baselined) {
 		counters.forEach((key, value) -> this.counters.put(Counters.normalize(key), Math.max(0, value)));
 		this.milestones.addAll(milestones);
 		this.lineTimes.putAll(lines);
@@ -85,6 +87,7 @@ public final class ObserverMemory implements DialogueHistory {
 		events.stream().skip(Math.max(0, events.size() - MAX_EVENTS)).forEach(this.events::addLast);
 		this.firstMet = firstMet;
 		this.lastSpoke = lastSpoke;
+		this.observedSince = observedSince;
 		this.baselined = baselined;
 	}
 
@@ -259,8 +262,17 @@ public final class ObserverMemory implements DialogueHistory {
 		return baselined;
 	}
 
-	public void markBaselined() {
+	/** Records the baseline, and when he started watching (no appearance before a full cooldown). */
+	public void markBaselined(long now) {
 		baselined = true;
+		if (observedSince < 0) {
+			observedSince = now;
+		}
+	}
+
+	/** Game time he started watching this player; -1 before the baseline. */
+	public long observedSince() {
+		return observedSince;
 	}
 
 	/** Forgets everything; for {@code /herobrine memory <player> reset}. */
@@ -277,6 +289,7 @@ public final class ObserverMemory implements DialogueHistory {
 		home = null;
 		firstMet = -1;
 		lastSpoke = -1;
+		observedSince = -1;
 		baselined = false;
 	}
 
@@ -284,6 +297,6 @@ public final class ObserverMemory implements DialogueHistory {
 	public ObserverMemory copy() {
 		return new ObserverMemory(counters, new ArrayList<>(milestones), lineTimes, categoryTimes, triggerTimes,
 				new ArrayList<>(recentLines), new ArrayList<>(encounterTimes), Optional.ofNullable(lastAppearance),
-				Optional.ofNullable(home), new ArrayList<>(events), firstMet, lastSpoke, baselined);
+				Optional.ofNullable(home), new ArrayList<>(events), firstMet, lastSpoke, observedSince, baselined);
 	}
 }

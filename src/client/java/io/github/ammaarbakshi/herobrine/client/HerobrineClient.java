@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import io.github.ammaarbakshi.herobrine.client.hud.DebugOverlay;
 import io.github.ammaarbakshi.herobrine.client.render.HerobrineRenderer;
 import io.github.ammaarbakshi.herobrine.client.screen.MirrorProfileScreen;
+import io.github.ammaarbakshi.herobrine.client.voice.VoicePlayer;
 import io.github.ammaarbakshi.herobrine.net.ConfrontationCuePayload;
 import io.github.ammaarbakshi.herobrine.net.MirrorProfilePayload;
 import io.github.ammaarbakshi.herobrine.registry.ModEntities;
@@ -19,6 +20,7 @@ public final class HerobrineClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityRenderers.register(ModEntities.HEROBRINE, HerobrineRenderer::new);
 		DebugOverlay.init();
+		VoicePlayer.init();
 		ClientPlayNetworking.registerGlobalReceiver(MirrorProfilePayload.TYPE,
 				(payload, context) -> context.client().gui.setScreen(new MirrorProfileScreen(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(ConfrontationCuePayload.TYPE, (payload, context) -> {

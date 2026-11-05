@@ -27,7 +27,7 @@ class ObserverMemoryTest {
 		memory.recordEvent(new WorldEvent("killed_wither", new Place("minecraft:the_nether", 1, 2, 3, 5000)));
 		memory.recordTrigger("encounter", 1300);
 		memory.recordLine("random.hi", "random", 1310);
-		memory.markBaselined();
+		memory.markBaselined(700);
 
 		JsonElement json = ObserverMemory.CODEC.encodeStart(JsonOps.INSTANCE, memory).getOrThrow();
 		ObserverMemory decoded = ObserverMemory.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
@@ -45,6 +45,7 @@ class ObserverMemoryTest {
 		assertEquals(1300, decoded.firstMet());
 		assertEquals(1310, decoded.lastSpoke());
 		assertTrue(decoded.baselined());
+		assertEquals(700, decoded.observedSince());
 	}
 
 	@Test

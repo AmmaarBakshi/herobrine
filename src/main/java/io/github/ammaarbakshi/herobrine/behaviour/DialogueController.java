@@ -26,7 +26,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -40,7 +39,6 @@ import io.github.ammaarbakshi.herobrine.dialogue.TriggerRule;
 import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
 import io.github.ammaarbakshi.herobrine.memory.ObserverMemory;
 import io.github.ammaarbakshi.herobrine.net.VoiceLinePayload;
-import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 
@@ -60,6 +58,8 @@ public final class DialogueController {
 	/** The category that is switched off by {@code fourthWall: false}. */
 	public static final String FOURTH_WALL = "fourth_wall";
 	private static final int MAX_WAITING = 4;
+	/** Waiting lines are looked at every this many ticks: a quarter second is precise enough for speech. */
+	private static final int CHECK_INTERVAL = 5;
 
 	private record Waiting(String trigger, Set<String> tags, long due, long expires) {
 	}
@@ -77,7 +77,6 @@ public final class DialogueController {
 				load(resources);
 			}
 		});
-		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, DialogueController::tick));
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> WAITING.remove(handler.player.getUUID()));
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			WAITING.clear();
@@ -195,8 +194,8 @@ public final class DialogueController {
 
 	// --- Ticking ------------------------------------------------------------------------------
 
-	private static void tick(MinecraftServer server) {
-		if (WAITING.isEmpty()) {
+	static void tick(MinecraftServer server) {
+		if (WAITING.isEmpty() || server.getTickCount() % CHECK_INTERVAL != 0) {
 			return;
 		}
 		long now = Observer.now(server);

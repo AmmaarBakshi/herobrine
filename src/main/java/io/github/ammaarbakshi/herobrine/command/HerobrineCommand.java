@@ -300,6 +300,7 @@ public final class HerobrineCommand {
 		sendPerf(ctx, "recorder", Perf.RECORDER);
 		sendPerf(ctx, "world", Perf.WORLD);
 		sendPerf(ctx, "mirror", Perf.MIRROR_AI);
+		sendPerf(ctx, "observer", Perf.OBSERVER);
 		return (int) Math.round(Perf.RECORDER.snapshot().averageMicros());
 	}
 

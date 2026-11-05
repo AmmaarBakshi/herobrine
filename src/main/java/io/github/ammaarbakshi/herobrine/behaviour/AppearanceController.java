@@ -12,8 +12,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
 import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
 import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity;
@@ -21,7 +19,6 @@ import io.github.ammaarbakshi.herobrine.entity.HerobrineEntity.Mode;
 import io.github.ammaarbakshi.herobrine.haunt.HauntLevel;
 import io.github.ammaarbakshi.herobrine.memory.Counters;
 import io.github.ammaarbakshi.herobrine.memory.ObserverMemory;
-import io.github.ammaarbakshi.herobrine.perf.Perf;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController;
 import io.github.ammaarbakshi.herobrine.sighting.SightingController.Outcome;
@@ -57,10 +54,9 @@ public final class AppearanceController implements SightingController.Listener {
 
 	public static void init() {
 		SightingController.setListener(new AppearanceController());
-		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.WORLD, AppearanceController::tick));
 	}
 
-	private static void tick(MinecraftServer server) {
+	static void tick(MinecraftServer server) {
 		tick++;
 		if (!Observer.active()) {
 			return;

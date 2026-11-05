@@ -23,6 +23,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 
+import io.github.ammaarbakshi.herobrine.HerobrineMod;
 import io.github.ammaarbakshi.herobrine.behaviour.DialogueController;
 import io.github.ammaarbakshi.herobrine.behaviour.ObservationController;
 import io.github.ammaarbakshi.herobrine.client.voice.VoicePlayer;
@@ -32,6 +33,8 @@ import io.github.ammaarbakshi.herobrine.memory.Counters;
 import io.github.ammaarbakshi.herobrine.memory.GearTier;
 import io.github.ammaarbakshi.herobrine.memory.Milestone;
 import io.github.ammaarbakshi.herobrine.memory.ObserverMemory;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
+import io.github.ammaarbakshi.herobrine.perf.PerfMeter;
 import io.github.ammaarbakshi.herobrine.registry.ModAttachments;
 import io.github.ammaarbakshi.herobrine.sighting.LookDetector;
 
@@ -65,6 +68,7 @@ public final class ObserverClientGameTest implements FabricClientGameTest {
 			eyesInTheDark(context, world);
 			heNoticesProgression(context, world);
 			theMemorialIsRecognised(context, world);
+			measureCost(context, world);
 		}
 
 		try (TestSingleplayerContext world = save.open()) {
@@ -175,6 +179,20 @@ public final class ObserverClientGameTest implements FabricClientGameTest {
 		context.waitTicks(20);
 		world.getConnection().waitForChunksRender();
 		GameTests.screenshot(context, "m10-berserk");
+	}
+
+	/** What the observer costs per server tick with one player, on its own meter. */
+	private static void measureCost(ClientGameTestContext context, TestSingleplayerContext world) {
+		world.getServer().runCommand("tp @p 0.5 -60 0.5 0 0");
+		context.waitTicks(20);
+		world.getServer().runOnServer(server -> Perf.resetAll());
+		context.waitTicks(400);
+		PerfMeter.Snapshot observer = world.getServer().computeOnServer(server -> Perf.OBSERVER.snapshot());
+		PerfMeter.Snapshot rest = world.getServer().computeOnServer(server -> Perf.WORLD.snapshot());
+		HerobrineMod.LOGGER.info("Observer with one player: {} µs per tick on average, worst {} µs; haunt, sightings and fights: {} µs",
+				String.format(Locale.ROOT, "%.2f", observer.averageMicros()), String.format(Locale.ROOT, "%.1f", observer.worstMicros()),
+				String.format(Locale.ROOT, "%.2f", rest.averageMicros()));
+		GameTests.check(observer.averageMicros() < 100.0, "the observer got expensive: " + observer.averageMicros() + " µs per tick");
 	}
 
 	/**

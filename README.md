@@ -91,6 +91,13 @@ savannas. It explains nothing. There are inscriptions, a broken shrine, an altar
 and something under the floor for those who dig. He is far likelier to appear near it.
 `/locate structure herobrine:berserk` finds the nearest one.
 
+### What it costs
+
+Nothing scans the world. He reacts to events, looks around once every 5 seconds per player
+(a handful of lookups), and a little more every 20 seconds. Measured on a slow test VM: about
+**16 µs per server tick with one player**, worst tick 0.2 ms. `/herobrine perf` shows the
+observer on its own line, so you can check your own server.
+
 ## Requirements
 
 - Minecraft Java **26.3**

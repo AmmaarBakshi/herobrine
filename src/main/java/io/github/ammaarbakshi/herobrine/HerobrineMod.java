@@ -8,9 +8,7 @@ import net.minecraft.resources.Identifier;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
-import io.github.ammaarbakshi.herobrine.behaviour.AppearanceController;
-import io.github.ammaarbakshi.herobrine.behaviour.DialogueController;
-import io.github.ammaarbakshi.herobrine.behaviour.ObservationController;
+import io.github.ammaarbakshi.herobrine.behaviour.Observer;
 import io.github.ammaarbakshi.herobrine.command.HerobrineCommand;
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
 import io.github.ammaarbakshi.herobrine.encounter.ConfrontationManager;
@@ -48,9 +46,7 @@ public final class HerobrineMod implements ModInitializer {
 		PlayerBehaviorRecorder.init();
 		ConfrontationManager.init();
 		ShrineDetector.init();
-		DialogueController.init();
-		AppearanceController.init();
-		ObservationController.init();
+		Observer.init();
 		Perf.init();
 		CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
 				HerobrineCommand.register(dispatcher));

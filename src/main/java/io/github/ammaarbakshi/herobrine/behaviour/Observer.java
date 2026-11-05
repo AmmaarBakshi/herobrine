@@ -7,8 +7,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+
 import io.github.ammaarbakshi.herobrine.config.HerobrineConfig;
 import io.github.ammaarbakshi.herobrine.memory.Place;
+import io.github.ammaarbakshi.herobrine.perf.Perf;
 
 /**
  * Small shared helpers for the Living Observer: the clock everything is measured in, the master
@@ -19,6 +22,22 @@ public final class Observer {
 	public static final long TICKS_PER_MINUTE = 1200L;
 
 	private Observer() {
+	}
+
+	/**
+	 * Starts the three controllers, kept apart from each other, and gives them one shared tick,
+	 * measured on its own meter ({@code /herobrine perf}): the voice first, so a line due this tick
+	 * goes out before anything new is noticed.
+	 */
+	public static void init() {
+		DialogueController.init();
+		AppearanceController.init();
+		ObservationController.init();
+		ServerTickEvents.END_SERVER_TICK.register(Perf.timed(Perf.OBSERVER, server -> {
+			DialogueController.tick(server);
+			AppearanceController.tick(server);
+			ObservationController.tick(server);
+		}));
 	}
 
 	/**

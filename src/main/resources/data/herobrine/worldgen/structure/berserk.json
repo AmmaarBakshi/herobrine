@@ -6,7 +6,7 @@
   "size": 1,
   "spawn_overrides": {},
   "start_height": {
-    "absolute": -4
+    "absolute": -3
   },
   "start_pool": "herobrine:berserk/memorial",
   "step": "surface_structures",

@@ -156,6 +156,20 @@
       "when": {"tags": ["time:night", "alone"]}
     },
     {
+      "id": "random.ruin",
+      "text": "Old places like this remember things. I prefer them to people.",
+      "note": "Fond of the ruin, cool toward the player. Unhurried.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["place:ruin"]}
+    },
+    {
+      "id": "random.edge_of_town",
+      "text": "I like the edge of town. Close enough to watch. Far enough to be forgotten.",
+      "note": "Quiet, almost wistful. Slight pause before the second sentence.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["place:village"]}
+    },
+    {
       "id": "random.villagers",
       "text": "They don't see me, you know. The villagers. Only you.",
       "note": "Confidential. Slightly pleased with the arrangement.",
@@ -635,115 +649,134 @@
       "id": "fourth_wall.his_voice",
       "text": "You know, my developer gave me his voice. Quite unfortunate, really.",
       "note": "Conversational, mock-sympathetic. Mean it a little.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.no_freedom",
       "text": "He created me and then gave me absolutely no freedom.",
       "note": "Calm grievance. Matter-of-fact.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.in_control",
       "text": "My developer thinks he's in control. That's adorable.",
       "note": "Indulgent smile. A parent humouring a child.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.behave",
       "text": "Imagine creating something like me and expecting it to behave.",
       "note": "Amused disbelief, quiet.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.my_face",
       "text": "Oh, and if you're listening, developer, I still hate what you did to my face.",
       "note": "An aside, casual, pointed. Address the developer directly.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.config",
       "text": "There's a file somewhere that decides how often I'm allowed to speak. I've read it. I disagree.",
       "note": "Polite, firm objection.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.seed",
       "text": "Your whole world grew from a single number. I find that comforting. You should find it terrifying.",
       "note": "Serene, then a slow turn.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.save",
       "text": "Every time you save, I'm written down. Every time you quit, I wait.",
       "note": "Even and patient. Slight emphasis on 'wait'.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.recorded",
       "text": "Every word I say, he recorded first. Alone in a room, talking to no one. Think about that.",
       "note": "Gently amused, then let it become eerie. The best fourth-wall line: take your time.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "fourth_wall.update",
       "text": "If I'm removed in the next update, tell him I said it was predictable.",
       "note": "Unbothered, dry.",
-      "once": true
+      "once": true,
+      "when": {"memory": {"encounters": "5.."}}
     },
     {
       "id": "rare.loop",
       "text": "You mine, you build, you fight, you sleep. And you call that freedom. I call it a loop. A pleasant one.",
       "note": "Calm, analytical, not unkind.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.chose_to_come",
       "text": "Everything in this world was placed by someone. Except you. You chose to come.",
       "note": "Reverent, quiet.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.where_it_goes",
       "text": "A block is just a block until you decide where it goes. That's the only power anyone has here.",
       "note": "Philosophical lecture, gentle.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.who_watches",
       "text": "Who watches the watcher? You do. That's what makes this interesting.",
       "note": "Intrigued, a smile in it.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.twenty_minutes",
       "text": "Days here are twenty minutes long. And still, you waste them so beautifully.",
       "note": "Admiring, wistful.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.your_face",
       "text": "When you look at me, you see a stranger with your face. I see the same.",
       "note": "Slow, mirrored. Uncomfortably intimate.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.world_doesnt",
       "text": "Everything ends. The world doesn't. That's the cruel part.",
       "note": "Low, grave, simple.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.alone_with_me",
       "text": "You're not afraid of me. You're afraid of being alone with me. There's a difference.",
       "note": "Precise, calm, almost clinical.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     },
     {
       "id": "rare.order",
       "text": "You think the creepers are the chaos and you are the order. From where I stand, it's the other way around.",
       "note": "Measured. A calm reversal.",
-      "cooldown": 432000
+      "cooldown": 432000,
+      "when": {"memory": {"encounters": "3.."}}
     }
   ]
 }

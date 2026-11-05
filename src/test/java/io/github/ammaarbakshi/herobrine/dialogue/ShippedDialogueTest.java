@@ -44,7 +44,7 @@ class ShippedDialogueTest {
 			"haunt:signs", "haunt:sightings", "haunt:stalking", "haunt:confrontation",
 			"near:home", "near:village", "near:berserk",
 			"place:tree", "place:river", "place:ridge", "place:home", "place:cave", "place:open", "place:dark",
-			"place:distant", "place:behind",
+			"place:distant", "place:behind", "place:ruin", "place:village",
 			"outcome:approached", "outcome:stared", "outcome:looked_away", "outcome:ignored",
 			"phase:arrive", "phase:fight", "phase:killed", "depth:shallow", "depth:deep");
 
@@ -147,6 +147,19 @@ class ShippedDialogueTest {
 		assertTrue(catalog.line("random.back_so_soon").orElseThrow().memory().get("encounters").test(5));
 		assertTrue(catalog.line("random.knew_youd_return").orElseThrow().memory().get("encounters").test(10));
 		assertTrue(catalog.line("random.so_many_times").orElseThrow().memory().get("encounters").test(20));
+	}
+
+	@Test
+	void theFirstMeetingAlwaysOpensWithTheGreeting() {
+		TriggerRule encounter = catalog.trigger("encounter");
+		java.util.Random random = new java.util.Random(11);
+		for (int i = 0; i < 500; i++) {
+			DialoguePlanner.Plan plan = DialoguePlanner.choose(catalog, encounter,
+					Set.of("mode:observer", "place:tree", "first_meeting", "time:day", "outdoors", "alone"),
+					name -> name.equals("encounters") ? 1 : 0, DialogueHistory.NONE, 100_000_000L, random, false);
+			assertEquals("random.first", plan.line() == null ? null : plan.line().id(),
+					"the first time he is seen, he must say hello, not " + plan.line());
+		}
 	}
 
 	@Test

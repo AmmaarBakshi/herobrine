@@ -21,11 +21,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import io.github.ammaarbakshi.herobrine.HerobrineMod;
 
 /**
- * His words, low in the middle of the screen above the action bar: his name in dark red, the
+ * His words, low in the middle of the screen just above the action bar: his name in dark red, the
  * line in pale grey, fading in and out. Shown when the recording is missing, or with subtitles on.
  */
 public final class VoiceCaption {
 	private static final int MAX_WIDTH = 280;
+	private static final int ACTION_BAR_CLEARANCE = 80;
 	private static final int FADE_IN_MILLIS = 250;
 	private static final int FADE_OUT_MILLIS = 700;
 	private static final int NAME_COLOR = 0xAA0000;
@@ -79,7 +80,8 @@ public final class VoiceCaption {
 		int lineStep = font.lineHeight + 2;
 		int height = lineStep * (lines.size() + 1);
 		int centerX = graphics.guiWidth() / 2;
-		int top = graphics.guiHeight() - 96 - height;
+		// Just above the action bar (vanilla draws it at height - 68), so both can show at once.
+		int top = graphics.guiHeight() - ACTION_BAR_CLEARANCE - height;
 
 		graphics.fill(centerX - width / 2 - 6, top - 4, centerX + width / 2 + 6, top + height + 2, ARGB.color(alpha * 0.55F, BACKDROP));
 		graphics.centeredText(font, NAME, centerX, top, ARGB.color(alpha, NAME_COLOR));

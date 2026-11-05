@@ -1,0 +1,28 @@
+{
+  "_comment": [
+    "When Herobrine speaks. Times are in seconds of game time (20 ticks a second, so real time on a healthy server).",
+    "triggers: moments the mod reports. categories are tried in order, so rare ones go first.",
+    "  chance: does he say anything at all; cooldown: before this trigger can make him speak again;",
+    "  delay: [min, max] pause before the line; patience: how long it may wait for a quiet moment;",
+    "  appear: chance he also shows himself nearby; in_combat: may speak mid-fight.",
+    "categories: limits on a whole category whichever trigger offers it.",
+    "On top of all this, config/herobrine.json sets the minimum gap between any two lines (voiceMinGapSeconds)."
+  ],
+  "triggers": {
+    "encounter": {"categories": ["fourth_wall", "rare", "random"], "chance": 0.6, "delay": [0.8, 2.0], "patience": 8},
+    "reaction": {"categories": ["reaction"], "chance": 0.3, "cooldown": 900, "delay": [1.5, 4.0], "patience": 20},
+    "idle": {"categories": ["fourth_wall", "rare", "idle"], "chance": 0.015, "cooldown": 2400, "delay": [0, 2], "patience": 60},
+    "progression": {"categories": ["progression"], "chance": 0.85, "delay": [2, 6], "patience": 600, "appear": 0.2},
+    "boss": {"categories": ["wither", "ender_dragon", "warden"], "chance": 0.85, "cooldown": 20, "delay": [3, 8], "patience": 150, "in_combat": true},
+    "weather": {"categories": ["weather"], "chance": 0.35, "cooldown": 2400, "delay": [5, 20], "patience": 300},
+    "cave": {"categories": ["caves"], "chance": 0.3, "cooldown": 1800, "delay": [2, 10], "patience": 300},
+    "building": {"categories": ["building"], "chance": 0.5, "cooldown": 3600, "delay": [2, 8], "patience": 300, "appear": 0.3},
+    "death": {"categories": ["death"], "chance": 0.4, "cooldown": 300, "delay": [2, 5], "patience": 60},
+    "milestone": {"categories": ["achievements"], "chance": 0.7, "cooldown": 60, "delay": [3, 10], "patience": 900, "appear": 0.25}
+  },
+  "categories": {
+    "fourth_wall": {"chance": 0.03, "cooldown": 43200},
+    "rare": {"chance": 0.12, "cooldown": 3600},
+    "reaction": {"cooldown": 600}
+  }
+}

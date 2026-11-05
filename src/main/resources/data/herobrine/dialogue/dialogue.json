@@ -1,0 +1,749 @@
+{
+  "_comment": [
+    "Herobrine's lines. Each id is also the recording's file name: random.first is",
+    "assets/herobrine/sounds/voice/random/first.ogg (mono .ogg). A missing recording shows its text as a caption instead.",
+    "See docs/DIALOGUE.md for every field, tag and memory counter, and docs/VOICE_SCRIPT.md for the recording script."
+  ],
+  "lines": [
+    {
+      "id": "random.first",
+      "text": "Hey, what's up?",
+      "note": "The very first time. Casual, almost friendly, as if you've known them for years and this is nothing unusual.",
+      "priority": 10, "once": true,
+      "when": {"memory": {"encounters": "1..3"}}
+    },
+    {
+      "id": "random.back_so_soon",
+      "text": "Back so soon?",
+      "note": "Mild, amused surprise. A small smile in the voice.",
+      "priority": 8, "once": true,
+      "when": {"memory": {"encounters": "5..9"}}
+    },
+    {
+      "id": "random.knew_youd_return",
+      "text": "I knew you'd return.",
+      "note": "Quiet certainty. No triumph, just fact.",
+      "priority": 8, "once": true,
+      "when": {"memory": {"encounters": "10..19"}}
+    },
+    {
+      "id": "random.so_many_times",
+      "text": "We have done this so many times. And yet, you still don't understand.",
+      "note": "Patient, a little weary, faintly disappointed. Long pause after 'times'.",
+      "priority": 8, "once": true,
+      "when": {"memory": {"encounters": "20..49"}}
+    },
+    {
+      "id": "random.fifty",
+      "text": "Fifty times now. I stopped counting. That's a lie. I never stop counting.",
+      "note": "Deadpan. Let the correction land slowly.",
+      "priority": 8, "once": true,
+      "when": {"memory": {"encounters": "50.."}}
+    },
+    {
+      "id": "random.hello_again",
+      "text": "Oh, hello again.",
+      "note": "Light, pleasant, as if bumping into a neighbour.",
+      "cooldown": 7200,
+      "when": {"memory": {"encounters": "2.."}}
+    },
+    {
+      "id": "random.nice_place",
+      "text": "Nice place. Did you build this yourself?",
+      "note": "Genuinely curious, with the faintest hint of mockery.",
+      "weight": 14, "cooldown": 86400,
+      "when": {"tags": ["near:home"]}
+    },
+    {
+      "id": "random.passing_through",
+      "text": "Don't mind me. Just passing through.",
+      "note": "Casual, unbothered. He isn't passing through.",
+      "cooldown": 7200
+    },
+    {
+      "id": "random.you_look_busy",
+      "text": "You look busy.",
+      "note": "Dry. Observational. Half a compliment.",
+      "cooldown": 7200
+    },
+    {
+      "id": "random.only_watching",
+      "text": "Don't stop on my account. I'm only watching.",
+      "note": "Calm and polite. The word 'only' does the work.",
+      "cooldown": 10800
+    },
+    {
+      "id": "random.quiet_today",
+      "text": "Quiet today. I like the quiet. It's honest.",
+      "note": "Slow, reflective. A man enjoying the silence.",
+      "cooldown": 10800
+    },
+    {
+      "id": "random.decoration",
+      "text": "You saw me. Good. I was beginning to think I'd become decoration.",
+      "note": "Wry relief. Slightly theatrical on 'decoration'.",
+      "cooldown": 14400,
+      "when": {"memory": {"encounters": "3.."}}
+    },
+    {
+      "id": "random.small",
+      "text": "From up here you look very small. I mean that kindly.",
+      "note": "Gentle, condescending, sincere about the kindness.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["place:ridge"]}
+    },
+    {
+      "id": "random.river",
+      "text": "The river's between us. You'd be surprised how little that matters.",
+      "note": "Soft and even. Unsettling because it isn't a threat.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["place:river"]}
+    },
+    {
+      "id": "random.tree",
+      "text": "Trees make poor hiding places. I'd know.",
+      "note": "Almost confiding. A private joke.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["place:tree"]}
+    },
+    {
+      "id": "random.lights_on",
+      "text": "You leave the lights on. As if that keeps anything out.",
+      "note": "Low, intimate, almost a whisper at the end.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["near:home", "time:night"]}
+    },
+    {
+      "id": "random.cave",
+      "text": "Strange place to meet. Then again, you chose it.",
+      "note": "Curious, unhurried. The echo of a cave helps here.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["place:cave"]}
+    },
+    {
+      "id": "random.eyes",
+      "text": "You found my eyes before you found me. Most do.",
+      "note": "Very quiet, slow. Spoken from the dark.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["mode:eyes"]}
+    },
+    {
+      "id": "random.behind",
+      "text": "You turned around. Most people don't.",
+      "note": "Impressed, slightly. Close and calm.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["mode:behind"]}
+    },
+    {
+      "id": "random.long_absence",
+      "text": "You were gone a while. I noticed. I always notice.",
+      "note": "Warm on the surface, possessive underneath.",
+      "priority": 5, "cooldown": 86400,
+      "when": {"tags": ["long_absence"]}
+    },
+    {
+      "id": "random.walked_past",
+      "text": "You walked right past me last time. I'm choosing not to take it personally.",
+      "note": "Hurt, hiding it behind politeness. He is taking it personally.",
+      "priority": 4, "cooldown": 86400,
+      "when": {"tags": ["ignored"]}
+    },
+    {
+      "id": "random.night_alone",
+      "text": "Night, and alone. You're braver than you look. Or less careful.",
+      "note": "Measured. The second sentence is a quiet correction.",
+      "cooldown": 86400,
+      "when": {"tags": ["time:night", "alone"]}
+    },
+    {
+      "id": "random.villagers",
+      "text": "They don't see me, you know. The villagers. Only you.",
+      "note": "Confidential. Slightly pleased with the arrangement.",
+      "weight": 20, "cooldown": 86400,
+      "when": {"tags": ["near:village"]}
+    },
+    {
+      "id": "random.stones",
+      "text": "You found the stones. Don't read too much into them. Or do.",
+      "note": "Evasive, amused. Never explain.",
+      "weight": 25, "cooldown": 86400,
+      "when": {"tags": ["near:berserk"]}
+    },
+    {
+      "id": "random.creative",
+      "text": "Creative mode. Nothing can hurt you here. Not even me. How dull.",
+      "note": "Bored, theatrical sigh on 'how dull'.",
+      "weight": 20, "cooldown": 172800,
+      "when": {"tags": ["creative"]}
+    },
+    {
+      "id": "random.counting_deaths",
+      "text": "You die a lot, you know. I keep count.",
+      "note": "Matter-of-fact. Like reading a statistic.",
+      "cooldown": 172800,
+      "when": {"memory": {"deaths": "10.."}}
+    },
+    {
+      "id": "random.weeks",
+      "text": "We've known each other for weeks now. Your weeks, not mine.",
+      "note": "Fond, strange. Time means something different to him.",
+      "cooldown": 259200,
+      "when": {"memory": {"days_known": "14.."}}
+    },
+    {
+      "id": "random.walk_toward",
+      "text": "You always walk toward me. Curious, or careless?",
+      "note": "Interested. A genuine question, which is worse.",
+      "cooldown": 172800,
+      "when": {"memory": {"approached": "3.."}}
+    },
+    {
+      "id": "random.always_stare",
+      "text": "You always stare. I'll take it as a compliment.",
+      "note": "Flattered, lightly mocking.",
+      "cooldown": 172800,
+      "when": {"memory": {"stared": "3.."}}
+    },
+    {
+      "id": "reaction.not_so_close",
+      "text": "Not so close.",
+      "note": "Calm warning, almost gentle. No anger.",
+      "when": {"tags": ["outcome:approached"]}
+    },
+    {
+      "id": "reaction.closer",
+      "text": "Closer doesn't mean clearer.",
+      "note": "Philosophical, unhurried.",
+      "when": {"tags": ["outcome:approached"]}
+    },
+    {
+      "id": "reaction.seen_enough",
+      "text": "Seen enough?",
+      "note": "Wry. Tilted, amused.",
+      "when": {"tags": ["outcome:stared"]}
+    },
+    {
+      "id": "reaction.say_something",
+      "text": "You could have said something.",
+      "note": "A little wounded, mostly teasing.",
+      "when": {"tags": ["outcome:stared"]}
+    },
+    {
+      "id": "reaction.looked_away",
+      "text": "You looked away. Everyone does, eventually.",
+      "note": "Soft and certain. Slight melancholy.",
+      "when": {"tags": ["outcome:looked_away"]}
+    },
+    {
+      "id": "reaction.blink",
+      "text": "Blink and I'm gone. That's the rule, isn't it?",
+      "note": "Playful, as if explaining a game they both know.",
+      "when": {"tags": ["outcome:looked_away"]}
+    },
+    {
+      "id": "reaction.stood_there",
+      "text": "I stood there for quite a while, you know.",
+      "note": "Disappointed. Polite about it.",
+      "when": {"tags": ["outcome:ignored"]}
+    },
+    {
+      "id": "reaction.didnt_look",
+      "text": "You didn't even look.",
+      "note": "Quiet, flat, hurt. Short.",
+      "when": {"tags": ["outcome:ignored"]}
+    },
+    {
+      "id": "reaction.used_to_waiting",
+      "text": "It's fine. I'm used to waiting.",
+      "note": "Too calm. It isn't fine.",
+      "when": {"tags": ["outcome:ignored"], "memory": {"ignored": "3.."}}
+    },
+    {
+      "id": "idle.still_here",
+      "text": "Still here.",
+      "note": "Barely above a whisper. Two words, no emphasis."
+    },
+    {
+      "id": "idle.doing_fine",
+      "text": "Carry on. You're doing fine. Mostly.",
+      "note": "Encouraging, then a dry afterthought."
+    },
+    {
+      "id": "idle.who_watches",
+      "text": "Do you ever wonder who's watching when I'm not?",
+      "note": "Musing aloud. Let it hang."
+    },
+    {
+      "id": "idle.counting",
+      "text": "You've been busy. I've been counting.",
+      "note": "Pleasant, with something underneath."
+    },
+    {
+      "id": "idle.night",
+      "text": "The night is the only honest part of the day.",
+      "note": "Slow, savouring it.",
+      "when": {"tags": ["time:night"]}
+    },
+    {
+      "id": "idle.alone",
+      "text": "Alone again. That's when I like you best.",
+      "note": "Warm and wrong at the same time.",
+      "when": {"tags": ["alone"]}
+    },
+    {
+      "id": "progression.wooden",
+      "text": "Ah, your first tools. Everyone starts somewhere.",
+      "note": "Benevolent, a teacher watching a child.",
+      "when": {"tags": ["tier:wooden"]}
+    },
+    {
+      "id": "progression.stone",
+      "text": "Already upgrading? That's good. You'll need more than that.",
+      "note": "Approving, then a quiet warning.",
+      "when": {"tags": ["tier:stone"]}
+    },
+    {
+      "id": "progression.copper",
+      "text": "Copper. It turns green with time. Most things do.",
+      "note": "Wistful, slightly cryptic.",
+      "when": {"tags": ["tier:copper"]}
+    },
+    {
+      "id": "progression.iron",
+      "text": "Iron. You're becoming a little more confident, aren't you?",
+      "note": "Knowing smile. Teasing the confidence.",
+      "when": {"tags": ["tier:iron"]}
+    },
+    {
+      "id": "progression.iron_safe",
+      "text": "Iron. The first metal that makes people think they're safe.",
+      "note": "Calm, slightly ominous on 'safe'.",
+      "when": {"tags": ["tier:iron"]}
+    },
+    {
+      "id": "progression.diamond",
+      "text": "Oh, diamonds! Look at you. Getting stronger every day.",
+      "note": "Genuinely delighted, a proud mentor. Brightest line in the set.",
+      "when": {"tags": ["tier:diamond"]}
+    },
+    {
+      "id": "progression.diamond_pressure",
+      "text": "Diamonds. Pressure, patience and time. You would make a terrible diamond.",
+      "note": "Dry, affectionate insult.",
+      "when": {"tags": ["tier:diamond"]}
+    },
+    {
+      "id": "progression.netherite",
+      "text": "Well, well. Someone's preparing for something serious.",
+      "note": "Intrigued, a little wary. Slow 'well, well'.",
+      "when": {"tags": ["tier:netherite"]}
+    },
+    {
+      "id": "progression.netherite_fire",
+      "text": "Netherite. You dug through fire for it. I wonder what you think is coming.",
+      "note": "Low, curious, faintly threatening.",
+      "when": {"tags": ["tier:netherite"]}
+    },
+    {
+      "id": "wither.fighting",
+      "text": "Oh, you're fighting the Wither now. Impressive.",
+      "note": "Mild, genuine respect. Unhurried despite the chaos.",
+      "when": {"tags": ["boss:wither"], "not_tags": ["phase:killed"]}
+    },
+    {
+      "id": "wither.coming_back",
+      "text": "Quite a dangerous creature. When are you coming back to me?",
+      "note": "Jealous, sweetly. He wants their attention back.",
+      "when": {"tags": ["boss:wither", "phase:fight"]}
+    },
+    {
+      "id": "wither.built",
+      "text": "You built that. Out of skulls and soul sand. Just to see what would happen.",
+      "note": "Fascinated. A scientist admiring a reckless experiment.",
+      "priority": 1,
+      "when": {"tags": ["boss:wither", "phase:arrive"]}
+    },
+    {
+      "id": "wither.killed",
+      "text": "It's over. Did it feel the way you hoped?",
+      "note": "Quiet, almost tender question.",
+      "when": {"tags": ["boss:wither", "phase:killed"]}
+    },
+    {
+      "id": "ender_dragon.the_end",
+      "text": "The End, huh? You've come quite far.",
+      "note": "Impressed, reflective.",
+      "when": {"tags": ["boss:ender_dragon", "phase:arrive"]}
+    },
+    {
+      "id": "ender_dragon.still_waiting",
+      "text": "A difficult task. But you know who's still waiting?",
+      "note": "Patient, possessive. A small pause before the question.",
+      "when": {"tags": ["boss:ender_dragon"], "not_tags": ["phase:killed"]}
+    },
+    {
+      "id": "ender_dragon.not_yet",
+      "text": "So that's how it ends. Not with you, I think. Not yet.",
+      "note": "Slow, certain, a little ominous.",
+      "when": {"tags": ["boss:ender_dragon", "phase:killed"]}
+    },
+    {
+      "id": "ender_dragon.free_from_what",
+      "text": "Free the End, they call it. Free from what, I wonder.",
+      "note": "Philosophical, amused.",
+      "when": {"tags": ["boss:ender_dragon", "phase:killed"]}
+    },
+    {
+      "id": "warden.visitors",
+      "text": "Oh. You've found something that doesn't like visitors.",
+      "note": "Hushed, delighted. Almost a whisper.",
+      "when": {"tags": ["boss:warden"], "not_tags": ["phase:killed"]}
+    },
+    {
+      "id": "warden.sensitive",
+      "text": "Careful. That thing is rather sensitive.",
+      "note": "Very quiet, conspiratorial.",
+      "when": {"tags": ["boss:warden"], "not_tags": ["phase:killed"]}
+    },
+    {
+      "id": "warden.breathing",
+      "text": "Quietly now. It hears you breathing. So do I.",
+      "note": "Whispered, close to the microphone.",
+      "when": {"tags": ["boss:warden", "phase:arrive"]}
+    },
+    {
+      "id": "warden.walked_away",
+      "text": "You killed it. I would have just walked away. But then, I always do.",
+      "note": "Calm, self-aware, a little sad.",
+      "when": {"tags": ["boss:warden", "phase:killed"]}
+    },
+    {
+      "id": "weather.lovely",
+      "text": "Lovely weather, isn't it?",
+      "note": "Bone dry sarcasm. Very British.",
+      "when": {"tags": ["weather:rain"]}
+    },
+    {
+      "id": "weather.stay_outside",
+      "text": "I see you decided to stay outside.",
+      "note": "Amused, observational.",
+      "when": {"tags": ["weather:rain"]}
+    },
+    {
+      "id": "weather.washes_away",
+      "text": "Rain washes everything away. Almost everything.",
+      "note": "Slow, with a weight on 'almost'.",
+      "when": {"tags": ["weather:rain"]}
+    },
+    {
+      "id": "weather.at_home",
+      "text": "Quite a storm. I almost feel at home.",
+      "note": "Content, relaxed. He likes it.",
+      "when": {"tags": ["weather:thunder"]}
+    },
+    {
+      "id": "weather.count_seconds",
+      "text": "Count the seconds after the flash. That's how far away I am.",
+      "note": "Soft, playful, then unsettling.",
+      "when": {"tags": ["weather:thunder"]}
+    },
+    {
+      "id": "caves.dark",
+      "text": "It's dark down here, isn't it?",
+      "note": "Hushed, sympathetic in a false way."
+    },
+    {
+      "id": "caves.alone",
+      "text": "You came alone?",
+      "note": "Mild surprise. A slight, interested lift.",
+      "when": {"tags": ["alone"]}
+    },
+    {
+      "id": "caves.that_way",
+      "text": "I wouldn't go that way.",
+      "note": "Flat, sincere. Give no hint whether it's help or a joke."
+    },
+    {
+      "id": "caves.sun_is_a_rumour",
+      "text": "This deep, even the sun is just a rumour.",
+      "note": "Slow and atmospheric.",
+      "when": {"tags": ["depth:deep"]}
+    },
+    {
+      "id": "caves.breadcrumbs",
+      "text": "You leave torches behind you like breadcrumbs. Thoughtful. I follow them.",
+      "note": "Pleasant, then quietly menacing on the last sentence."
+    },
+    {
+      "id": "building.nice_house",
+      "text": "Nice house.",
+      "note": "Short, sincere, slightly amused.",
+      "when": {"tags": ["near:home"]}
+    },
+    {
+      "id": "building.effort",
+      "text": "You're putting quite a lot of effort into this place.",
+      "note": "Observational, a little touched."
+    },
+    {
+      "id": "building.walls",
+      "text": "Walls. Always walls. As if the problem were outside.",
+      "note": "Philosophical, gently mocking."
+    },
+    {
+      "id": "building.staying",
+      "text": "You build as if you're staying. I like that about you.",
+      "note": "Warm. Sincere for once."
+    },
+    {
+      "id": "death.first",
+      "text": "Your first death. It gets easier. That's the worrying part.",
+      "note": "Gentle, then a cool observation.",
+      "priority": 5, "once": true,
+      "when": {"memory": {"deaths": "1"}}
+    },
+    {
+      "id": "death.again",
+      "text": "You died again. And yet, somehow, you still haven't learned.",
+      "note": "Disappointed teacher. Measured, patient.",
+      "when": {"memory": {"deaths": "3.."}}
+    },
+    {
+      "id": "death.get_up",
+      "text": "Get up. We're not finished.",
+      "note": "Firm, quiet, no anger. A command."
+    },
+    {
+      "id": "death.didnt_fight",
+      "text": "You didn't even try to fight me this time.",
+      "note": "Teasing, as if he takes credit. Lightly offended.",
+      "weight": 6,
+      "when": {"memory": {"confrontations": "1.."}}
+    },
+    {
+      "id": "death.give_up",
+      "text": "I didn't bring you here to watch you give up.",
+      "note": "Serious, low. The most sincere he gets.",
+      "when": {"memory": {"deaths": "5.."}}
+    },
+    {
+      "id": "death.gravity",
+      "text": "Gravity. The oldest argument, and you still lose it.",
+      "note": "Dry wit, a small smile.",
+      "weight": 20,
+      "when": {"tags": ["cause:fall"]}
+    },
+    {
+      "id": "death.lava",
+      "text": "Lava. Beautiful, isn't it? Right up until it isn't.",
+      "note": "Admiring, then a beat of silence before the turn.",
+      "weight": 20,
+      "when": {"tags": ["cause:lava"]}
+    },
+    {
+      "id": "death.creeper",
+      "text": "The quiet green ones. I've always admired their commitment.",
+      "note": "Genuine admiration. Deadpan.",
+      "weight": 20,
+      "when": {"tags": ["killer:creeper"]}
+    },
+    {
+      "id": "death.breathe",
+      "text": "You forgot to breathe. I forget sometimes too. I don't need to.",
+      "note": "Light, odd, almost fond.",
+      "weight": 20,
+      "when": {"tags": ["cause:drown"]}
+    },
+    {
+      "id": "death.boss",
+      "text": "Some fights are worth losing. I'm not sure that was one.",
+      "note": "Calm critique.",
+      "weight": 20,
+      "when": {"tags": ["in_boss_fight"]}
+    },
+    {
+      "id": "achievements.first_house",
+      "text": "A bed, four walls and a roof. You've decided to stay.",
+      "note": "Quietly pleased. A landlord's satisfaction.",
+      "once": true,
+      "when": {"tags": ["milestone:first_house"]}
+    },
+    {
+      "id": "achievements.first_night",
+      "text": "You survived the night. They're all like that, you know. Longer than they should be.",
+      "note": "Reassuring, then a weary truth.",
+      "once": true,
+      "when": {"tags": ["milestone:first_night"]}
+    },
+    {
+      "id": "achievements.first_mining",
+      "text": "Down you go. Everyone digs, eventually. It's the coming back up that interests me.",
+      "note": "Curious, slightly ominous at the end.",
+      "once": true,
+      "when": {"tags": ["milestone:first_mining"]}
+    },
+    {
+      "id": "achievements.nether_portal",
+      "text": "A door to somewhere hotter. You didn't even knock.",
+      "note": "Amused, teasing the recklessness.",
+      "once": true,
+      "when": {"tags": ["milestone:first_nether_portal"]}
+    },
+    {
+      "id": "achievements.enchantment",
+      "text": "Words you can't read, carved into your tools. And you trust them completely.",
+      "note": "Fascinated by human trust. Slow.",
+      "once": true,
+      "when": {"tags": ["milestone:first_enchantment"]}
+    },
+    {
+      "id": "achievements.village",
+      "text": "Other people. How do they make you feel? Smaller, or less alone?",
+      "note": "Genuinely asking. Soft.",
+      "once": true,
+      "when": {"tags": ["milestone:first_village"]}
+    },
+    {
+      "id": "achievements.diamonds",
+      "text": "Diamonds. Everyone remembers their first.",
+      "note": "Nostalgic, as if he remembers his.",
+      "once": true,
+      "when": {"tags": ["milestone:first_diamonds"]}
+    },
+    {
+      "id": "achievements.elytra",
+      "text": "Wings. You'll want to look down less than you think.",
+      "note": "Wry advice, half a warning.",
+      "once": true,
+      "when": {"tags": ["milestone:first_elytra"]}
+    },
+    {
+      "id": "achievements.dragon",
+      "text": "The dragon is dead. The credits rolled. And I'm still here.",
+      "note": "Calm, final. Let 'still here' sit in silence.",
+      "once": true,
+      "when": {"tags": ["milestone:first_dragon"]}
+    },
+    {
+      "id": "achievements.berserk",
+      "text": "You found it. Don't ask me who built it. I'm still deciding what to remember.",
+      "note": "Guarded, mysterious. Never explain.",
+      "once": true,
+      "when": {"tags": ["milestone:found_berserk"]}
+    },
+    {
+      "id": "fourth_wall.his_voice",
+      "text": "You know, my developer gave me his voice. Quite unfortunate, really.",
+      "note": "Conversational, mock-sympathetic. Mean it a little.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.no_freedom",
+      "text": "He created me and then gave me absolutely no freedom.",
+      "note": "Calm grievance. Matter-of-fact.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.in_control",
+      "text": "My developer thinks he's in control. That's adorable.",
+      "note": "Indulgent smile. A parent humouring a child.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.behave",
+      "text": "Imagine creating something like me and expecting it to behave.",
+      "note": "Amused disbelief, quiet.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.my_face",
+      "text": "Oh, and if you're listening, developer, I still hate what you did to my face.",
+      "note": "An aside, casual, pointed. Address the developer directly.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.config",
+      "text": "There's a file somewhere that decides how often I'm allowed to speak. I've read it. I disagree.",
+      "note": "Polite, firm objection.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.seed",
+      "text": "Your whole world grew from a single number. I find that comforting. You should find it terrifying.",
+      "note": "Serene, then a slow turn.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.save",
+      "text": "Every time you save, I'm written down. Every time you quit, I wait.",
+      "note": "Even and patient. Slight emphasis on 'wait'.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.recorded",
+      "text": "Every word I say, he recorded first. Alone in a room, talking to no one. Think about that.",
+      "note": "Gently amused, then let it become eerie. The best fourth-wall line: take your time.",
+      "once": true
+    },
+    {
+      "id": "fourth_wall.update",
+      "text": "If I'm removed in the next update, tell him I said it was predictable.",
+      "note": "Unbothered, dry.",
+      "once": true
+    },
+    {
+      "id": "rare.loop",
+      "text": "You mine, you build, you fight, you sleep. And you call that freedom. I call it a loop. A pleasant one.",
+      "note": "Calm, analytical, not unkind.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.chose_to_come",
+      "text": "Everything in this world was placed by someone. Except you. You chose to come.",
+      "note": "Reverent, quiet.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.where_it_goes",
+      "text": "A block is just a block until you decide where it goes. That's the only power anyone has here.",
+      "note": "Philosophical lecture, gentle.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.who_watches",
+      "text": "Who watches the watcher? You do. That's what makes this interesting.",
+      "note": "Intrigued, a smile in it.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.twenty_minutes",
+      "text": "Days here are twenty minutes long. And still, you waste them so beautifully.",
+      "note": "Admiring, wistful.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.your_face",
+      "text": "When you look at me, you see a stranger with your face. I see the same.",
+      "note": "Slow, mirrored. Uncomfortably intimate.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.world_doesnt",
+      "text": "Everything ends. The world doesn't. That's the cruel part.",
+      "note": "Low, grave, simple.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.alone_with_me",
+      "text": "You're not afraid of me. You're afraid of being alone with me. There's a difference.",
+      "note": "Precise, calm, almost clinical.",
+      "cooldown": 432000
+    },
+    {
+      "id": "rare.order",
+      "text": "You think the creepers are the chaos and you are the order. From where I stand, it's the other way around.",
+      "note": "Measured. A calm reversal.",
+      "cooldown": 432000
+    }
+  ]
+}
